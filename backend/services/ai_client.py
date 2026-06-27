@@ -18,7 +18,13 @@ load_dotenv()
 # ── Config ────────────────────────────────────────────────────────────────────
 AI_PROVIDER = os.getenv("AI_PROVIDER", "gemini")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+if GEMINI_API_KEY.startswith("your_"):
+    GEMINI_API_KEY = ""
+
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+if OPENAI_API_KEY.startswith("your_"):
+    OPENAI_API_KEY = ""
+
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 CACHE_TTL = int(os.getenv("CACHE_TTL_SECONDS", "3600"))

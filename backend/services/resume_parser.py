@@ -321,7 +321,7 @@ def extract_certifications(text: str) -> List[str]:
 
 
 def _extract_year(text: str) -> Optional[str]:
-    years = re.findall(r'\b(19|20)\d{2}\b', text)
+    years = re.findall(r'\b(?:19|20)\d{2}\b', text)
     return years[-1] if years else None
 
 
