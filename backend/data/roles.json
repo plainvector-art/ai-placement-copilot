@@ -1,0 +1,112 @@
+{
+  "roles": {
+    "Data Analyst": {
+      "required_skills": ["SQL", "Python", "Excel", "Power BI", "Statistics", "Data Visualization", "Tableau", "pandas", "NumPy", "Data Cleaning"],
+      "preferred_skills": ["R", "Looker", "Google Analytics", "BigQuery", "Snowflake", "dbt", "A/B Testing", "ETL"],
+      "core_skills": ["SQL", "Python", "Excel", "Statistics", "Data Visualization"],
+      "description": "Analyze data to support business decisions using statistical methods and visualization tools.",
+      "avg_salary": "$65,000 - $95,000",
+      "growth": "23%",
+      "certifications": ["Google Data Analytics", "Microsoft PL-300", "Tableau Desktop Specialist"]
+    },
+    "Data Scientist": {
+      "required_skills": ["Python", "Machine Learning", "Statistics", "SQL", "pandas", "scikit-learn", "Data Visualization", "Feature Engineering", "Model Evaluation"],
+      "preferred_skills": ["Deep Learning", "TensorFlow", "PyTorch", "Spark", "Hadoop", "NLP", "Computer Vision", "MLflow", "Airflow", "Docker"],
+      "core_skills": ["Python", "Machine Learning", "Statistics", "SQL", "scikit-learn"],
+      "description": "Build predictive models and extract insights from complex datasets using ML and AI techniques.",
+      "avg_salary": "$90,000 - $140,000",
+      "growth": "36%",
+      "certifications": ["AWS Certified ML Specialty", "Google Professional ML Engineer", "TensorFlow Developer"]
+    },
+    "AI Engineer": {
+      "required_skills": ["Python", "Deep Learning", "TensorFlow", "PyTorch", "NLP", "LLMs", "API Development", "Docker", "Cloud Platforms", "Vector Databases"],
+      "preferred_skills": ["LangChain", "RAG", "Fine-tuning", "CUDA", "Kubernetes", "MLOps", "FastAPI", "Hugging Face", "Prompt Engineering", "Computer Vision"],
+      "core_skills": ["Python", "Deep Learning", "LLMs", "NLP", "Docker"],
+      "description": "Design and deploy AI/ML systems and intelligent applications at scale.",
+      "avg_salary": "$110,000 - $180,000",
+      "growth": "42%",
+      "certifications": ["AWS AI Practitioner", "Google Professional ML Engineer", "Hugging Face NLP Course"]
+    },
+    "ML Engineer": {
+      "required_skills": ["Python", "Machine Learning", "MLOps", "Docker", "Kubernetes", "scikit-learn", "TensorFlow", "SQL", "Cloud Platforms", "CI/CD"],
+      "preferred_skills": ["Spark", "Kafka", "Airflow", "MLflow", "DVC", "Feature Stores", "A/B Testing", "Monitoring", "REST APIs", "Terraform"],
+      "core_skills": ["Python", "Machine Learning", "MLOps", "Docker", "Cloud Platforms"],
+      "description": "Build and maintain ML infrastructure and pipelines that power production AI systems.",
+      "avg_salary": "$100,000 - $165,000",
+      "growth": "38%",
+      "certifications": ["AWS Certified ML Specialty", "Google Professional ML Engineer", "Databricks ML Professional"]
+    },
+    "Software Engineer": {
+      "required_skills": ["Python", "JavaScript", "Data Structures", "Algorithms", "Git", "REST APIs", "SQL", "Object-Oriented Programming", "Linux", "Testing"],
+      "preferred_skills": ["React", "Node.js", "Docker", "Kubernetes", "Microservices", "CI/CD", "Cloud Platforms", "TypeScript", "GraphQL", "Redis"],
+      "core_skills": ["Python", "Data Structures", "Algorithms", "Git", "REST APIs"],
+      "description": "Design, develop and maintain software systems and applications.",
+      "avg_salary": "$80,000 - $150,000",
+      "growth": "25%",
+      "certifications": ["AWS Solutions Architect", "Google Cloud Professional Developer", "Oracle Java SE"]
+    },
+    "Full Stack Developer": {
+      "required_skills": ["JavaScript", "React", "Node.js", "HTML", "CSS", "SQL", "REST APIs", "Git", "TypeScript", "MongoDB"],
+      "preferred_skills": ["Next.js", "GraphQL", "Docker", "Redis", "Tailwind CSS", "PostgreSQL", "AWS", "Testing", "CI/CD", "WebSockets"],
+      "core_skills": ["JavaScript", "React", "Node.js", "HTML", "CSS", "SQL"],
+      "description": "Build end-to-end web applications handling both client and server-side development.",
+      "avg_salary": "$75,000 - $140,000",
+      "growth": "28%",
+      "certifications": ["AWS Certified Developer", "Meta Front-End Developer", "Google UX Design"]
+    },
+    "Cybersecurity Analyst": {
+      "required_skills": ["Network Security", "SIEM", "Incident Response", "Vulnerability Assessment", "Linux", "Python", "Firewalls", "IDS/IPS", "Risk Management", "Compliance"],
+      "preferred_skills": ["Penetration Testing", "Ethical Hacking", "Splunk", "Wireshark", "Metasploit", "Cloud Security", "Zero Trust", "SOAR", "Forensics", "Malware Analysis"],
+      "core_skills": ["Network Security", "Linux", "Incident Response", "SIEM", "Vulnerability Assessment"],
+      "description": "Protect organizational systems and data from cyber threats through monitoring and response.",
+      "avg_salary": "$75,000 - $120,000",
+      "growth": "35%",
+      "certifications": ["CompTIA Security+", "CISSP", "CEH", "CISM"]
+    },
+    "Embedded Engineer": {
+      "required_skills": ["C", "C++", "Microcontrollers", "RTOS", "UART", "SPI", "I2C", "PCB Design", "Debugging", "Embedded Linux"],
+      "preferred_skills": ["Python", "FPGA", "ARM Cortex", "CAN Bus", "FreeRTOS", "IoT Protocols", "Device Drivers", "Power Management", "Signal Processing", "Yocto"],
+      "core_skills": ["C", "C++", "Microcontrollers", "RTOS", "Embedded Linux"],
+      "description": "Design and program embedded systems for IoT, automotive, consumer electronics, and industrial applications.",
+      "avg_salary": "$70,000 - $120,000",
+      "growth": "18%",
+      "certifications": ["ARM Accredited Engineer", "CompTIA Linux+", "Embedded Systems Certificate"]
+    },
+    "Electronics Engineer": {
+      "required_skills": ["Circuit Design", "PCB Layout", "MATLAB", "Signal Processing", "Simulation", "Soldering", "Oscilloscope", "Altium Designer", "VHDL/Verilog", "Power Electronics"],
+      "preferred_skills": ["FPGA", "RF Design", "EMC/EMI", "SPICE", "SolidWorks", "PLC", "Control Systems", "Automotive Electronics", "Thermal Analysis", "Test & Measurement"],
+      "core_skills": ["Circuit Design", "PCB Layout", "MATLAB", "Signal Processing", "Simulation"],
+      "description": "Design and develop electronic circuits, components, and systems for various applications.",
+      "avg_salary": "$65,000 - $110,000",
+      "growth": "14%",
+      "certifications": ["PE License", "IPC Certification", "IEEE Membership"]
+    },
+    "Product Manager": {
+      "required_skills": ["Product Strategy", "Roadmapping", "Agile", "User Research", "Data Analysis", "Stakeholder Management", "JIRA", "A/B Testing", "PRD Writing", "KPIs"],
+      "preferred_skills": ["SQL", "Figma", "UX Design", "Market Research", "Competitive Analysis", "OKRs", "Technical Background", "GTM Strategy", "Analytics Tools", "API Knowledge"],
+      "core_skills": ["Product Strategy", "Agile", "User Research", "Stakeholder Management", "Data Analysis"],
+      "description": "Define product vision and roadmap, translating customer needs into actionable development plans.",
+      "avg_salary": "$90,000 - $160,000",
+      "growth": "20%",
+      "certifications": ["Certified Scrum Product Owner", "Google PM Certificate", "Pragmatic Marketing"]
+    },
+    "DevOps Engineer": {
+      "required_skills": ["Docker", "Kubernetes", "CI/CD", "Linux", "Terraform", "AWS", "Python", "Bash", "Monitoring", "Git"],
+      "preferred_skills": ["Ansible", "Helm", "GitLab CI", "Jenkins", "Prometheus", "Grafana", "ArgoCD", "Service Mesh", "Security Scanning", "Cost Optimization"],
+      "core_skills": ["Docker", "Kubernetes", "CI/CD", "Linux", "Terraform"],
+      "description": "Bridge development and operations to enable rapid, reliable software delivery and infrastructure management.",
+      "avg_salary": "$85,000 - $145,000",
+      "growth": "22%",
+      "certifications": ["AWS Solutions Architect", "CKA", "HashiCorp Terraform Associate"]
+    },
+    "Cloud Architect": {
+      "required_skills": ["AWS", "Azure", "GCP", "Terraform", "Kubernetes", "Microservices", "Security", "Networking", "Cost Optimization", "High Availability"],
+      "preferred_skills": ["Multi-cloud", "FinOps", "Zero Trust", "Serverless", "Data Architecture", "Compliance", "CDN", "Load Balancing", "Disaster Recovery", "MLOps"],
+      "core_skills": ["AWS", "Terraform", "Kubernetes", "Microservices", "Networking"],
+      "description": "Design and oversee cloud infrastructure architectures for scalability, security, and performance.",
+      "avg_salary": "$120,000 - $200,000",
+      "growth": "30%",
+      "certifications": ["AWS Solutions Architect Professional", "Google Professional Cloud Architect", "Azure Solutions Architect"]
+    }
+  }
+}

@@ -1,0 +1,321 @@
+{
+  "projects": {
+    "Data Analyst": {
+      "beginner": [
+        {
+          "title": "Sales Dashboard",
+          "description": "Build an interactive sales performance dashboard using Excel and Power BI showing revenue trends, top products, and regional performance.",
+          "skills": ["Excel", "Power BI", "SQL", "Data Visualization"],
+          "outcome": "Interactive dashboard with KPIs, filters, and drill-down capabilities",
+          "duration": "2-3 weeks",
+          "difficulty": "Beginner",
+          "github_topics": ["power-bi", "sales-dashboard", "data-visualization"]
+        },
+        {
+          "title": "COVID-19 Data Analysis",
+          "description": "Analyze COVID-19 global dataset to find trends, recovery rates, and correlations using Python and pandas.",
+          "skills": ["Python", "pandas", "matplotlib", "Statistics"],
+          "outcome": "Jupyter notebook with EDA, visualizations, and insights report",
+          "duration": "1-2 weeks",
+          "difficulty": "Beginner",
+          "github_topics": ["data-analysis", "covid19", "pandas", "matplotlib"]
+        }
+      ],
+      "intermediate": [
+        {
+          "title": "Customer Churn Prediction Dashboard",
+          "description": "End-to-end project: analyze customer data, build churn prediction model, and create BI dashboard for business stakeholders.",
+          "skills": ["Python", "SQL", "Machine Learning", "Tableau", "Statistics"],
+          "outcome": "Churn prediction model + executive dashboard + business recommendations",
+          "duration": "4-6 weeks",
+          "difficulty": "Intermediate",
+          "github_topics": ["churn-prediction", "tableau", "machine-learning"]
+        },
+        {
+          "title": "Financial Analytics Platform",
+          "description": "Build a stock portfolio analytics tool with live data feeds, performance metrics, and risk assessment.",
+          "skills": ["Python", "SQL", "Plotly", "APIs", "Statistics"],
+          "outcome": "Web app with live financial data, portfolio tracking, and risk metrics",
+          "duration": "3-4 weeks",
+          "difficulty": "Intermediate",
+          "github_topics": ["finance", "portfolio-analytics", "plotly", "streamlit"]
+        }
+      ],
+      "advanced": [
+        {
+          "title": "Real-time Business Intelligence Platform",
+          "description": "Build a real-time BI platform with streaming data ingestion, automated reporting, and anomaly detection.",
+          "skills": ["Python", "SQL", "Kafka", "Airflow", "Power BI", "Statistics"],
+          "outcome": "Production BI platform with real-time dashboards and automated alerts",
+          "duration": "8-10 weeks",
+          "difficulty": "Advanced",
+          "github_topics": ["business-intelligence", "kafka", "real-time-analytics"]
+        }
+      ]
+    },
+    "Data Scientist": {
+      "beginner": [
+        {
+          "title": "House Price Prediction",
+          "description": "Predict house prices using regression models on the California Housing dataset with feature engineering and model comparison.",
+          "skills": ["Python", "scikit-learn", "pandas", "Statistics", "Feature Engineering"],
+          "outcome": "ML pipeline with multiple models, evaluation metrics, and prediction API",
+          "duration": "2-3 weeks",
+          "difficulty": "Beginner",
+          "github_topics": ["machine-learning", "regression", "scikit-learn"]
+        },
+        {
+          "title": "Sentiment Analysis Tool",
+          "description": "Build a sentiment analysis tool for product reviews using NLP techniques and pre-trained models.",
+          "skills": ["Python", "NLP", "NLTK", "scikit-learn", "Streamlit"],
+          "outcome": "Web app that classifies sentiment with confidence scores",
+          "duration": "2 weeks",
+          "difficulty": "Beginner",
+          "github_topics": ["nlp", "sentiment-analysis", "streamlit"]
+        }
+      ],
+      "intermediate": [
+        {
+          "title": "Recommendation System",
+          "description": "Build a movie/product recommendation system using collaborative filtering and content-based filtering.",
+          "skills": ["Python", "Machine Learning", "pandas", "scikit-learn", "FastAPI"],
+          "outcome": "Recommendation API with hybrid filtering and A/B testing framework",
+          "duration": "4-5 weeks",
+          "difficulty": "Intermediate",
+          "github_topics": ["recommendation-system", "collaborative-filtering", "fastapi"]
+        },
+        {
+          "title": "Time Series Forecasting",
+          "description": "Forecast energy consumption or stock prices using ARIMA, LSTM, and Prophet models.",
+          "skills": ["Python", "Deep Learning", "TensorFlow", "Statistics", "Data Visualization"],
+          "outcome": "Forecasting dashboard comparing model performance across multiple algorithms",
+          "duration": "4-6 weeks",
+          "difficulty": "Intermediate",
+          "github_topics": ["time-series", "forecasting", "lstm", "prophet"]
+        }
+      ],
+      "advanced": [
+        {
+          "title": "End-to-End ML Platform",
+          "description": "Build a complete ML platform with model registry, experiment tracking, automated retraining, and monitoring.",
+          "skills": ["Python", "MLflow", "Docker", "Airflow", "FastAPI", "Grafana"],
+          "outcome": "Production ML platform with full MLOps pipeline",
+          "duration": "10-12 weeks",
+          "difficulty": "Advanced",
+          "github_topics": ["mlops", "mlflow", "docker", "airflow"]
+        }
+      ]
+    },
+    "AI Engineer": {
+      "beginner": [
+        {
+          "title": "AI Chatbot with RAG",
+          "description": "Build a document Q&A chatbot using LangChain, ChromaDB, and OpenAI/Gemini for retrieval-augmented generation.",
+          "skills": ["Python", "LangChain", "LLMs", "Vector Databases", "FastAPI"],
+          "outcome": "Chatbot that answers questions from uploaded documents",
+          "duration": "2-3 weeks",
+          "difficulty": "Beginner",
+          "github_topics": ["rag", "langchain", "chatbot", "llm"]
+        },
+        {
+          "title": "Image Classification API",
+          "description": "Deploy a fine-tuned image classification model as a REST API using FastAPI and Docker.",
+          "skills": ["Python", "Deep Learning", "PyTorch", "FastAPI", "Docker"],
+          "outcome": "Dockerized API with model versioning and performance monitoring",
+          "duration": "2-3 weeks",
+          "difficulty": "Beginner",
+          "github_topics": ["deep-learning", "fastapi", "docker", "image-classification"]
+        }
+      ],
+      "intermediate": [
+        {
+          "title": "Multi-modal AI Assistant",
+          "description": "Build an AI assistant that handles text, images, and audio inputs using Gemini/GPT-4 Vision.",
+          "skills": ["Python", "LLMs", "Computer Vision", "Speech Recognition", "FastAPI"],
+          "outcome": "Multi-modal assistant with voice input, image analysis, and intelligent responses",
+          "duration": "5-6 weeks",
+          "difficulty": "Intermediate",
+          "github_topics": ["multimodal-ai", "gemini", "voice-assistant"]
+        }
+      ],
+      "advanced": [
+        {
+          "title": "LLM Fine-tuning Pipeline",
+          "description": "Fine-tune an open-source LLM (Llama/Mistral) for domain-specific tasks with RLHF and deployment.",
+          "skills": ["Python", "PyTorch", "Hugging Face", "CUDA", "Docker", "MLOps"],
+          "outcome": "Fine-tuned domain expert model with evaluation benchmarks and production deployment",
+          "duration": "10-14 weeks",
+          "difficulty": "Advanced",
+          "github_topics": ["llm-finetuning", "rlhf", "huggingface", "lora"]
+        }
+      ]
+    },
+    "Software Engineer": {
+      "beginner": [
+        {
+          "title": "RESTful API with Authentication",
+          "description": "Build a complete REST API with JWT authentication, CRUD operations, and PostgreSQL database.",
+          "skills": ["Python", "FastAPI", "SQL", "JWT", "Docker"],
+          "outcome": "Production-ready API with documentation, tests, and containerization",
+          "duration": "2-3 weeks",
+          "difficulty": "Beginner",
+          "github_topics": ["fastapi", "rest-api", "jwt", "postgresql"]
+        },
+        {
+          "title": "CLI Task Manager",
+          "description": "Build a feature-rich CLI application for task management with data persistence and filtering.",
+          "skills": ["Python", "Data Structures", "File I/O", "Object-Oriented Programming"],
+          "outcome": "CLI tool with rich output, data persistence, and comprehensive test suite",
+          "duration": "1-2 weeks",
+          "difficulty": "Beginner",
+          "github_topics": ["cli", "task-manager", "python", "typer"]
+        }
+      ],
+      "intermediate": [
+        {
+          "title": "Microservices E-commerce Platform",
+          "description": "Build a microservices-based e-commerce backend with API gateway, order service, and payment integration.",
+          "skills": ["Python", "Docker", "Kubernetes", "REST APIs", "Message Queues", "SQL"],
+          "outcome": "Scalable microservices architecture with full documentation",
+          "duration": "6-8 weeks",
+          "difficulty": "Intermediate",
+          "github_topics": ["microservices", "docker", "kubernetes", "fastapi"]
+        }
+      ],
+      "advanced": [
+        {
+          "title": "Distributed Systems Platform",
+          "description": "Implement distributed consensus, leader election, and fault-tolerant data replication.",
+          "skills": ["Python", "Distributed Systems", "Networking", "Kubernetes", "gRPC"],
+          "outcome": "Distributed database with consensus algorithm and fault tolerance",
+          "duration": "12-16 weeks",
+          "difficulty": "Advanced",
+          "github_topics": ["distributed-systems", "raft", "grpc", "consensus"]
+        }
+      ]
+    },
+    "Cybersecurity Analyst": {
+      "beginner": [
+        {
+          "title": "Network Scanner Tool",
+          "description": "Build a Python-based network scanner that discovers hosts, open ports, and running services.",
+          "skills": ["Python", "Networking", "Linux", "Security Tools"],
+          "outcome": "CLI tool with host discovery, port scanning, and service fingerprinting",
+          "duration": "2 weeks",
+          "difficulty": "Beginner",
+          "github_topics": ["network-scanner", "security", "python", "nmap"]
+        },
+        {
+          "title": "Security Log Analyzer",
+          "description": "Parse and analyze security logs to detect suspicious patterns and generate alerts.",
+          "skills": ["Python", "SIEM", "Log Analysis", "Regular Expressions", "Pandas"],
+          "outcome": "Log analysis dashboard with threat detection and reporting",
+          "duration": "2-3 weeks",
+          "difficulty": "Beginner",
+          "github_topics": ["security", "log-analysis", "siem", "threat-detection"]
+        }
+      ],
+      "intermediate": [
+        {
+          "title": "Vulnerability Scanner",
+          "description": "Build a web application vulnerability scanner that detects common CVEs and security misconfigurations.",
+          "skills": ["Python", "Web Security", "APIs", "Linux", "Docker"],
+          "outcome": "Scanner with CVE database, automated reports, and remediation suggestions",
+          "duration": "5-6 weeks",
+          "difficulty": "Intermediate",
+          "github_topics": ["vulnerability-scanner", "cybersecurity", "cve"]
+        }
+      ],
+      "advanced": [
+        {
+          "title": "SOC Automation Platform",
+          "description": "Build a Security Operations Center automation platform with SOAR capabilities and threat intelligence.",
+          "skills": ["Python", "SIEM", "APIs", "Machine Learning", "Docker", "Threat Intelligence"],
+          "outcome": "Automated incident response platform with ML-based anomaly detection",
+          "duration": "10-12 weeks",
+          "difficulty": "Advanced",
+          "github_topics": ["soar", "soc", "threat-intelligence", "automation"]
+        }
+      ]
+    },
+    "Embedded Engineer": {
+      "beginner": [
+        {
+          "title": "Smart Home Automation",
+          "description": "Build a home automation system using Raspberry Pi/ESP32 to control lights, temperature, and appliances.",
+          "skills": ["C", "C++", "Microcontrollers", "UART", "I2C", "Python"],
+          "outcome": "Working home automation system with mobile app control",
+          "duration": "3-4 weeks",
+          "difficulty": "Beginner",
+          "github_topics": ["iot", "home-automation", "raspberry-pi", "esp32"]
+        },
+        {
+          "title": "IoT Weather Station",
+          "description": "Design an IoT weather station that collects sensor data and uploads to cloud dashboard.",
+          "skills": ["C", "Microcontrollers", "SPI", "MQTT", "IoT Protocols"],
+          "outcome": "Solar-powered station with cloud monitoring and alert system",
+          "duration": "2-3 weeks",
+          "difficulty": "Beginner",
+          "github_topics": ["iot", "weather-station", "mqtt", "arduino"]
+        }
+      ],
+      "intermediate": [
+        {
+          "title": "RTOS-Based Motor Controller",
+          "description": "Implement a real-time motor controller using FreeRTOS for industrial automation applications.",
+          "skills": ["C", "C++", "RTOS", "FreeRTOS", "CAN Bus", "PID Control"],
+          "outcome": "Precision motor controller with safety features and communication interface",
+          "duration": "5-6 weeks",
+          "difficulty": "Intermediate",
+          "github_topics": ["rtos", "freertos", "motor-control", "embedded"]
+        }
+      ],
+      "advanced": [
+        {
+          "title": "Energy Monitoring System",
+          "description": "Build a smart energy monitoring system with real-time analytics, anomaly detection, and optimization recommendations.",
+          "skills": ["C", "C++", "Embedded Linux", "RTOS", "MQTT", "Python", "ML"],
+          "outcome": "Production energy monitoring system with predictive maintenance",
+          "duration": "8-10 weeks",
+          "difficulty": "Advanced",
+          "github_topics": ["energy-monitoring", "embedded-linux", "iot", "edge-computing"]
+        }
+      ]
+    },
+    "Product Manager": {
+      "beginner": [
+        {
+          "title": "Product Requirements Document",
+          "description": "Create a comprehensive PRD for a SaaS product including user stories, wireframes, and success metrics.",
+          "skills": ["Product Strategy", "User Research", "PRD Writing", "Figma", "KPIs"],
+          "outcome": "Complete PRD with user personas, feature specifications, and launch checklist",
+          "duration": "2-3 weeks",
+          "difficulty": "Beginner",
+          "github_topics": ["product-management", "prd", "product-strategy"]
+        }
+      ],
+      "intermediate": [
+        {
+          "title": "Product Analytics Dashboard",
+          "description": "Build a product analytics dashboard tracking user acquisition, retention, and feature adoption.",
+          "skills": ["SQL", "Analytics Tools", "A/B Testing", "Data Visualization", "Python"],
+          "outcome": "Analytics platform with cohort analysis, funnel tracking, and experiment management",
+          "duration": "4-5 weeks",
+          "difficulty": "Intermediate",
+          "github_topics": ["product-analytics", "sql", "data-visualization"]
+        }
+      ],
+      "advanced": [
+        {
+          "title": "Go-to-Market Strategy",
+          "description": "Develop a complete GTM strategy for a new AI product including market analysis, pricing, and launch plan.",
+          "skills": ["Product Strategy", "Market Research", "Competitive Analysis", "OKRs", "GTM Strategy"],
+          "outcome": "Complete GTM playbook with competitive positioning and growth metrics",
+          "duration": "6-8 weeks",
+          "difficulty": "Advanced",
+          "github_topics": ["product-management", "gtm-strategy", "market-analysis"]
+        }
+      ]
+    }
+  }
+}
