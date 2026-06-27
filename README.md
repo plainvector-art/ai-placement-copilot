@@ -1,193 +1,115 @@
 # 🎯 AI Interview & Placement Copilot
 
-> A production-grade, AI-powered career placement readiness platform built with FastAPI + Streamlit + Gemini.
+## 📝 Project Overview
+AI Interview & Placement Copilot is a production-grade, AI-powered career placement readiness platform. It parsed resumes, analyzes skill gaps, scores ATS quality, generates personalized mock interviews, and creates customized learning roadmaps. 
 
-[![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.111-green?logo=fastapi)](https://fastapi.tiangolo.com)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.35+-red?logo=streamlit)](https://streamlit.io)
-[![Gemini](https://img.shields.io/badge/Gemini-1.5%20Flash-orange?logo=google)](https://ai.google.dev)
-[![License](https://img.shields.io/badge/License-MIT-purple)](LICENSE)
+Originally built as a dual FastAPI + Streamlit application, it has been streamlined to run entirely serverless inside **Streamlit Community Cloud**, eliminating the need for a separate backend API server by calling backend services directly through direct python modules.
 
 ---
 
-## 🌟 Key Features
-
-| Feature | Description |
-| :--- | :--- |
-| 📄 **Resume Analysis** | PDF/DOCX parsing with ATS scoring (0-100) across 6 core dimensions. |
-| 🎯 **Skill Gap Analysis** | Compare skills against 12+ target roles using interactive radar charts. |
-| 📊 **Readiness Score** | Composite placement readiness score with actionable breakdown. |
-| ❓ **Interview Prep** | 40+ personalized, AI-generated questions (HR, Technical, Project, Behavioral). |
-| 🤖 **Mock Interview** | Real-time chat-based mock interview simulator with scoring & feedback. |
-| 🗺️ **Learning Roadmap** | Customized 30/60/90-day & 6-month step-by-step roadmap. |
-| 📋 **JD Matcher** | Compare your resume against any Job Description for keyword alignment. |
-| 💬 **Career Coach** | AI chatbot loaded with your full resume context. |
-| 🚀 **Project Ideas** | Get role-specific project recommendations with estimated impact scores. |
-| 📈 **Analytics** | Full interactive Plotly dashboard tracking placement metrics. |
-| ✉️ **Cover Letter** | AI-generated tailored cover letters mapping to projects in your resume. |
-| 🔗 **LinkedIn Profile** | Optimized headline & "About" section generator. |
-| 🚀 **Career Path** | 5-year career progression and salary trajectory predictor. |
+## 🌟 Features
+* **Resume Analysis**: Upload PDF/DOCX resumes and get an ATS score (0-100) across multiple dimensions.
+* **Skill Gap Analysis**: Compares candidate skills against 12+ target role templates using Plotly radar charts.
+* **Readiness Score**: A holistic index indicating candidate preparation.
+* **Interview Questions**: Custom AI-generated questions (HR, Technical, Behavioral, and Project).
+* **Mock Interview**: Chat interface simulating real-time technical interviews.
+* **Learning Roadmap**: Personal week-by-week 30/60/90-day learning curriculum.
+* **JD Matcher**: Matches candidate profiles with a raw Job Description to check keyword compatibility.
+* **Career Coach**: RAG-style conversational assistant loaded with full candidate profile context.
+* **Project Ideas**: Role-specific project suggestions with estimated impact scores.
+* **Analytics**: Plots trends and progress tracking for preparation.
+* **LinkedIn & Cover Letter**: Tailored LinkedIn bio/headline and job-specific cover letter generator.
 
 ---
 
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────────────┐
-│                   Streamlit Frontend                  │
-│    10 Feature Pages + Custom CSS + Plotly Charts     │
-└─────────────┬───────────────────────────────────────┘
-              │ Direct Python calls (no HTTP needed)
-┌─────────────▼───────────────────────────────────────┐
-│              FastAPI Backend (optional HTTP API)     │
-│   /api/v1/resume  /analysis  /interview  /career    │
-└─────────────┬───────────────────────────────────────┘
-              │
-    ┌─────────┼──────────────────────┐
-    │         │                      │
-┌───▼───┐ ┌──▼───────┐ ┌───────────▼──┐
-│SQLite │ │ AI Layer │ │ File Storage │
-│  ORM  │ │  Gemini  │ │   uploads/   │
-└───────┘ └──────────┘ └──────────────┘
-```
+## 📸 Screenshots
+*(Add screenshot links here to display UI)*
+![Dashboard Screenshot Placeholder](https://raw.githubusercontent.com/plainvector-art/ai-placement-copilot/main/.github/screenshots/dashboard.png)
 
 ---
 
-## ⚡ Quick Start
+## ⚡ Installation & Local Setup
 
-### Step 1: Clone & Setup
+### Prerequisites
+- Python 3.10 or 3.11
+- Git
 
-```bash
-# Clone the repository
-git clone https://github.com/plainvector-art/ai-placement-copilot.git
-cd ai-placement-copilot
-
-# Create a virtual environment
-python -m venv venv
-venv\Scripts\activate    # Windows
-# source venv/bin/activate  # Linux/Mac
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Download required spaCy NLP model
-python -m spacy download en_core_web_sm
-```
-
-### Step 2: Configure Environment Variables
-
-1. Copy the example environment file:
+### Steps
+1. **Clone the repository**:
    ```bash
-   cp .env.example .env
+   git clone https://github.com/plainvector-art/ai-placement-copilot.git
+   cd ai-placement-copilot
    ```
-2. Edit `.env` and add your **Gemini API Key**:
-   ```env
-   GEMINI_API_KEY=your_gemini_api_key_here
+
+2. **Set up a Virtual Environment**:
+   ```bash
+   python -m venv venv
+   # On Windows:
+   venv\Scripts\activate
+   # On Linux/macOS:
+   source venv/bin/activate
    ```
-   > **How to get a key:** You can get a free Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
 
-### Step 3: Run the App
+3. **Install Dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-You have three options depending on your setup:
-
-* **Option A: Run Frontend + Backend (Recommended)**
-  ```bash
-  python run.py
-  ```
-* **Option B: Run Frontend Only (Uses AI services directly)**
-  ```bash
-  python -m streamlit run frontend/app.py
-  ```
-* **Option C: Run Backend API Server Only**
-  ```bash
-  python -m uvicorn backend.main:app --reload
-  ```
-
-Once running, open **http://localhost:8501** in your browser.
+4. **Run the Streamlit application**:
+   ```bash
+   python -m streamlit run frontend/app.py
+   ```
 
 ---
 
-## 📁 Project Structure
+## 🚀 Streamlit Cloud Deployment
 
-```
-ai-placement-copilot/
-├── backend/
-│   ├── api/routes/          # FastAPI route handlers
-│   ├── services/            # Core business logic
-│   │   ├── ai_client.py     # Gemini & OpenAI client wrapper
-│   │   ├── resume_parser.py # PDF/DOCX profile extractor
-│   │   ├── ats_scorer.py    # ATS scoring engine
-│   │   └── ...
-│   ├── database/            # SQLAlchemy database model & ORM
-│   ├── data/                # Static data (roles.json, projects.json)
-│   └── utils/
-├── frontend/
-│   ├── app.py               # Streamlit application entry point
-│   ├── pages/               # Multi-page feature implementations
-│   └── components/          # CSS styling, charts, and reused UI components
-├── tests/                   # Pytest suite
-├── uploads/                 # Local directory for temporary resume uploads
-├── run.py                   # Unified developer launcher script
-├── requirements.txt
-└── .env.example
-```
+This repository is optimized to deploy directly to **Streamlit Community Cloud** without any manual installation.
 
----
-
-## 🎨 Premium Design System
-
-The application features a custom **dark-mode first design system** inspired by modern platforms like Vercel and Linear:
-- **Palette**: Slate backgrounds (`#0a0a0f`), glassmorphism cards (`#16161f`), and gold accents (`#d4af37`).
-- **Typography**: Inter & JetBrains Mono fonts.
-- **Micro-Animations**: Smooth fade-ins, hover state scale translations, and glowing button frames.
-- **UI Customizations**: Streamlit's sidebar layout uses premium custom chevron controls (`»` / `«`) matching the overall style.
-
----
-
-## 🧪 Running Tests
-
-Ensure your environment is set up, then run:
-```bash
-pip install pytest
-pytest tests/ -v
-```
-
----
-
-## 🚀 Production Deployment
-
-### Streamlit Community Cloud (Easiest)
-1. Fork this repository to your GitHub account.
+### Configuration
+1. Create a repository on GitHub and push these files.
 2. Visit [share.streamlit.io](https://share.streamlit.io) and log in.
-3. Select your repository, branch, and set the entry file to `frontend/app.py`.
-4. In **Settings > Secrets**, add `GEMINI_API_KEY = "your_key"`.
-5. Deploy!
+3. Deploy a new app:
+   - **Repository**: `plainvector-art/ai-placement-copilot`
+   - **Branch**: `main`
+   - **Main file path**: `frontend/app.py`
+4. Before clicking Deploy, open the **Advanced settings** and paste the secrets into the **Secrets** text box (see the configuration template below).
+5. Click **Deploy**.
 
-### Docker Containerization
-```bash
-# Build the container
-docker build -t placement-copilot .
+---
 
-# Run the container
-docker run -p 8501:8501 -e GEMINI_API_KEY=your_key placement-copilot
+## 🔑 Configuration & Secrets
+
+Secrets can be configured locally in `.streamlit/secrets.toml` or in the Streamlit Cloud dashboard:
+
+```toml
+# GEMINI_API_KEY is required for AI-powered features
+GEMINI_API_KEY = "AIzaSy..."
+
+# OPTIONAL: Fallback model credentials
+OPENAI_API_KEY = "sk-..."
+
+# Configs
+AI_PROVIDER = "gemini" 
+GEMINI_MODEL = "gemini-1.5-flash"
+OPENAI_MODEL = "gpt-4o-mini"
+DATABASE_URL = "sqlite:///./placement_copilot.db"
+DEBUG = "False"
+RATE_LIMIT_PER_MINUTE = "30"
 ```
 
 ---
 
-## 🔧 Configuration Options
+## 🔧 Troubleshooting
 
-The following variables can be configured in your `.env` file:
+### 1. Missing Gemini API Key
+* **Symptom**: Warning message "Running in Demo Mode" appears in the sidebar, and mock responses are generated.
+* **Resolution**: Ensure `GEMINI_API_KEY` is added to Streamlit secrets or configured in your local `.env` or `.streamlit/secrets.toml`.
 
-| Variable | Default | Description |
-| :--- | :--- | :--- |
-| `GEMINI_API_KEY` | `—` | **Required** for AI-based features |
-| `AI_PROVIDER` | `gemini` | Choose between `gemini` and `openai` |
-| `GEMINI_MODEL` | `gemini-1.5-flash` | Selected Gemini model |
-| `DATABASE_URL` | `sqlite:///./placement_copilot.db` | Database URL |
-| `MAX_UPLOAD_SIZE_MB` | `10` | Max file upload limit |
+### 2. Database Write / Permission Denied
+* **Symptom**: App logs warning that database could not be created or written.
+* **Resolution**: The SQLite connection automatically detects write permission restrictions. If writing to the folder fails, the app automatically switches to an in-memory database (`sqlite:///:memory:`), meaning the app remains fully functional, although database changes will not persist across app restarts.
 
----
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
+### 3. SentenceTransformers Loading Time
+* **Symptom**: First loading of "Intelligent Candidate Ranker" takes 15-20 seconds.
+* **Resolution**: The model `all-MiniLM-L6-v2` is loaded lazily and cached in memory. Subsequent runs and other pages will run instantly.

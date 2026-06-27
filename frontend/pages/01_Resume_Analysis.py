@@ -10,7 +10,7 @@ from frontend.components.styles import inject_css
 from frontend.components.charts import ats_gauge, ats_breakdown_bar
 from backend.services.resume_parser import parse_resume
 from backend.services.ats_scorer import calculate_ats_score
-from backend.utils.file_handler import save_uploaded_file
+from backend.utils.file_handler import save_uploaded_file, cleanup_file
 
 st.set_page_config(page_title="Resume Analysis | Placement Copilot", page_icon="📄", layout="wide")
 inject_css()
@@ -45,6 +45,7 @@ with col_upload:
 
         if st.button("🔍 Analyze Resume", use_container_width=True):
             with st.spinner("🤖 Parsing resume and extracting profile..."):
+                file_path = None
                 try:
                     # Save file
                     file_path = save_uploaded_file(uploaded_file.getvalue(), uploaded_file.name)
@@ -62,6 +63,9 @@ with col_upload:
                     st.rerun()
                 except Exception as e:
                     st.error(f"❌ Error: {str(e)}")
+                finally:
+                    if file_path:
+                        cleanup_file(file_path)
 
 with col_info:
     st.markdown("""

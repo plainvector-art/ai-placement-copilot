@@ -11,29 +11,24 @@ from functools import lru_cache
 from cachetools import TTLCache
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from loguru import logger
+from backend.utils.config import get_secret
 from dotenv import load_dotenv
 
 load_dotenv()
 
 # ── Config ────────────────────────────────────────────────────────────────────
-AI_PROVIDER = os.getenv("AI_PROVIDER", "gemini")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-if GEMINI_API_KEY.startswith("your_"):
-    GEMINI_API_KEY = ""
-
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-if OPENAI_API_KEY.startswith("your_"):
-    OPENAI_API_KEY = ""
-
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-CACHE_TTL = int(os.getenv("CACHE_TTL_SECONDS", "3600"))
+AI_PROVIDER = get_secret("AI_PROVIDER", "gemini")
+GEMINI_API_KEY = get_secret("GEMINI_API_KEY", "")
+OPENAI_API_KEY = get_secret("OPENAI_API_KEY", "")
+GEMINI_MODEL = get_secret("GEMINI_MODEL", "gemini-1.5-flash")
+OPENAI_MODEL = get_secret("OPENAI_MODEL", "gpt-4o-mini")
+CACHE_TTL = int(get_secret("CACHE_TTL_SECONDS", "3600"))
 
 # ── Response cache (TTL-based) ────────────────────────────────────────────────
 _response_cache: TTLCache = TTLCache(maxsize=200, ttl=CACHE_TTL)
 
 # ── Rate limiting ─────────────────────────────────────────────────────────────
-_rate_limit_per_min = int(os.getenv("RATE_LIMIT_PER_MINUTE", "30"))
+_rate_limit_per_min = int(get_secret("RATE_LIMIT_PER_MINUTE", "30"))
 _request_timestamps: List[float] = []
 
 

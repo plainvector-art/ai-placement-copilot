@@ -152,9 +152,10 @@ if run_btn:
 
         # Step 2: parse all resumes
         from backend.services.resume_parser import parse_resume
-        from backend.utils.file_handler import save_uploaded_file
+        from backend.utils.file_handler import save_uploaded_file, cleanup_file
         profiles = []
         for uploaded_file in uploaded_files:
+            path = None
             try:
                 path = save_uploaded_file(uploaded_file.getvalue(), uploaded_file.name)
                 profile = parse_resume(path)
@@ -163,6 +164,9 @@ if run_btn:
             except Exception as e:
                 st.error(f"Failed to parse {uploaded_file.name}: {e}")
                 continue
+            finally:
+                if path:
+                    cleanup_file(path)
 
         # Step 3: semantic ranking
         from backend.services.semantic_ranker import rank_candidates
