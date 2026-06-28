@@ -1,9 +1,8 @@
 """
 Semantic Candidate Ranking Engine.
 Uses SentenceTransformers to embed JD and candidate profiles,
-then ranks candidates by cosine similarity via FAISS.
+then ranks candidates by cosine similarity via NumPy.
 """
-import faiss
 import numpy as np
 from loguru import logger
 
@@ -63,26 +62,26 @@ def rank_candidates(
     query_embedding = model.encode([job_description], convert_to_numpy=True).astype('float32')
 
     # L2-normalize vectors for cosine similarity
-    faiss.normalize_L2(candidate_embeddings)
-    faiss.normalize_L2(query_embedding)
+    candidate_norms = np.linalg.norm(candidate_embeddings, axis=1, keepdims=True)
+    candidate_norms[candidate_norms == 0] = 1.0
+    candidate_embeddings_norm = candidate_embeddings / candidate_norms
 
-    # Search candidates using IndexFlatIP
-    d = candidate_embeddings.shape[1]
-    index = faiss.IndexFlatIP(d)
-    index.add(candidate_embeddings)
+    query_norm = np.linalg.norm(query_embedding, axis=1, keepdims=True)
+    query_norm[query_norm == 0] = 1.0
+    query_embedding_norm = query_embedding / query_norm
+
+    # Dot product of normalized vectors yields cosine similarity (shape: (1, N))
+    scores = np.dot(query_embedding_norm, candidate_embeddings_norm.T)
 
     N = len(candidates)
-    scores, indices = index.search(query_embedding, N)
 
     # Attach scores to the candidate profiles
-    for j in range(N):
-        candidate_idx = indices[0][j]
-        if candidate_idx != -1:
-            raw_score = float(scores[0][j])
-            # cosine similarity * 100, rounded to 1 decimal, clamped between 0 and 100
-            semantic_score = round(raw_score * 100, 1)
-            semantic_score = max(0.0, min(100.0, semantic_score))
-            candidates[candidate_idx]["semantic_score"] = semantic_score
+    for i in range(N):
+        raw_score = float(scores[0][i])
+        # cosine similarity * 100, rounded to 1 decimal, clamped between 0 and 100
+        semantic_score = round(raw_score * 100, 1)
+        semantic_score = max(0.0, min(100.0, semantic_score))
+        candidates[i]["semantic_score"] = semantic_score
 
     # Default missing scores to 0.0
     for candidate in candidates:
