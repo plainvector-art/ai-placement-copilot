@@ -138,6 +138,12 @@ button[data-testid="stSidebarCollapseButton"]:hover {
 """, unsafe_allow_html=True)
 
 # ── Session State Initialization ──────────────────────────────────────────────
+if "discovered_gemini_models" not in st.session_state:
+    from backend.services.ai_client import discover_gemini_models, get_best_available_model
+    discovered = discover_gemini_models()
+    st.session_state.discovered_gemini_models = discovered
+    st.session_state.gemini_model = get_best_available_model(discovered)
+
 if "profile" not in st.session_state:
     st.session_state.profile = None
 if "session_id" not in st.session_state:

@@ -18,9 +18,17 @@ load_dotenv()
 
 # ── Config ────────────────────────────────────────────────────────────────────
 AI_PROVIDER = get_secret("AI_PROVIDER", "gemini")
-GEMINI_MODEL = get_secret("GEMINI_MODEL", "gemini-1.5-flash")
+GEMINI_MODEL_DEFAULT = get_secret("GEMINI_MODEL", "gemini-1.5-flash")
 OPENAI_MODEL = get_secret("OPENAI_MODEL", "gpt-4o-mini")
 CACHE_TTL = int(get_secret("CACHE_TTL_SECONDS", "3600"))
+
+PRIORITIZED_MODELS = [
+    "gemini-2.5-flash",
+    "gemini-2.5-pro",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+    "gemini-1.5-pro",
+]
 
 # ── API Key Resolvers ─────────────────────────────────────────────────────────
 def get_gemini_api_key() -> str:
@@ -51,6 +59,83 @@ def has_api_key() -> bool:
     """Check if either Gemini or OpenAI API keys are configured."""
     return bool(get_gemini_api_key() or get_openai_api_key())
 
+def discover_gemini_models(api_key: str = None) -> List[str]:
+    """Configures Gemini and queries available generative models."""
+    if not api_key:
+        api_key = get_gemini_api_key()
+    if not api_key:
+        return []
+    try:
+        import google.generativeai as genai
+        genai.configure(api_key=api_key)
+        models = []
+        for m in genai.list_models():
+            if "generateContent" in m.supported_generation_methods:
+                # model names return as 'models/gemini-1.5-flash', etc.
+                name = m.name.split("/")[-1]
+                models.append(name)
+        return models
+    except Exception as e:
+        logger.warning(f"Failed to discover Gemini models dynamically: {e}")
+        return []
+
+def get_best_available_model(models_list: List[str] = None) -> str:
+    """Finds the best model available from the list based on priority."""
+    if not models_list:
+        try:
+            import streamlit as st
+            # Try to get cached models list from session state
+            models_list = st.session_state.get("discovered_gemini_models")
+        except Exception:
+            pass
+    
+    # If still empty, use active discovery or fallback to hardcoded list
+    if not models_list:
+        models_list = discover_gemini_models()
+        
+    if not models_list:
+        models_list = PRIORITIZED_MODELS
+        
+    # Find the first model in our prioritized list that exists in the models_list
+    for priority in PRIORITIZED_MODELS:
+        for m in models_list:
+            if priority in m:
+                return m
+                
+    return models_list[0] if models_list else GEMINI_MODEL_DEFAULT
+
+def get_selected_gemini_model() -> str:
+    """Gets the currently selected Gemini model, checking session state first."""
+    try:
+        import streamlit as st
+        if "gemini_model" in st.session_state and st.session_state["gemini_model"]:
+            return st.session_state["gemini_model"]
+    except Exception:
+        pass
+    return get_best_available_model()
+
+def get_ai_provider() -> str:
+    """Returns the active AI provider based on configuration and key presence."""
+    if get_gemini_api_key():
+        return "gemini"
+    elif get_openai_api_key():
+        return "openai"
+    return "demo"
+
+def get_gemini_client(model_name: str = None):
+    """Lazily initialize Gemini model client."""
+    try:
+        import google.generativeai as genai
+        key = get_gemini_api_key()
+        if not key:
+            raise ValueError("GEMINI_API_KEY not configured.")
+        genai.configure(api_key=key)
+        if not model_name:
+            model_name = get_selected_gemini_model()
+        return genai.GenerativeModel(model_name)
+    except ImportError:
+        raise ImportError("google-generativeai is not installed.")
+
 def verify_gemini_connection(api_key: str) -> tuple[bool, str]:
     """Tests the Gemini API connection with a given key."""
     if not api_key:
@@ -58,7 +143,8 @@ def verify_gemini_connection(api_key: str) -> tuple[bool, str]:
     try:
         import google.generativeai as genai
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel(GEMINI_MODEL)
+        model_name = get_best_available_model()
+        model = genai.GenerativeModel(model_name)
         response = model.generate_content("Ping", generation_config={"max_output_tokens": 5})
         if response.text:
             return True, "Connected successfully."
@@ -66,6 +152,24 @@ def verify_gemini_connection(api_key: str) -> tuple[bool, str]:
     except Exception as e:
         logger.error(f"Gemini connection test failed: {e}")
         return False, str(e)
+
+def verify_api_key(provider: str, api_key: str) -> tuple[bool, str]:
+    """Tests connection/credentials for Gemini or OpenAI."""
+    if not api_key:
+        return False, "API Key is empty."
+    provider = provider.lower()
+    if provider == "gemini":
+        return verify_gemini_connection(api_key)
+    elif provider == "openai":
+        try:
+            from openai import OpenAI
+            client = OpenAI(api_key=api_key)
+            client.models.list()
+            return True, "Connected successfully."
+        except Exception as e:
+            logger.error(f"OpenAI connection test failed: {e}")
+            return False, str(e)
+    return False, f"Unknown provider: {provider}"
 
 # ── Response cache (TTL-based) ────────────────────────────────────────────────
 _response_cache: TTLCache = TTLCache(maxsize=200, ttl=CACHE_TTL)
@@ -111,67 +215,7 @@ def _cache_key(prompt: str, **kwargs) -> str:
     return hashlib.md5(key_data.encode()).hexdigest()
 
 
-# ── Gemini Client ─────────────────────────────────────────────────────────────
-
-def _get_gemini_client():
-    """Lazily initialize Gemini client."""
-    try:
-        import google.generativeai as genai
-        key = get_gemini_api_key()
-        if not key:
-            raise ValueError("GEMINI_API_KEY not set in environment or session state.")
-        genai.configure(api_key=key)
-        return genai.GenerativeModel(GEMINI_MODEL)
-    except ImportError:
-        raise ImportError("google-generativeai not installed. Run: pip install google-generativeai")
-
-
-@retry(
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(multiplier=1, min=2, max=10),
-    retry=retry_if_exception_type(Exception),
-    reraise=True,
-)
-def _call_gemini(prompt: str, temperature: float = 0.7, max_tokens: int = 4096) -> str:
-    """Call Gemini API with retry logic."""
-    import google.generativeai as genai
-    model = _get_gemini_client()
-    config = genai.GenerationConfig(
-        temperature=temperature,
-        max_output_tokens=max_tokens,
-    )
-    response = model.generate_content(prompt, generation_config=config)
-    return response.text
-
-
-# ── OpenAI Client ─────────────────────────────────────────────────────────────
-
-@retry(
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(multiplier=1, min=2, max=10),
-    retry=retry_if_exception_type(Exception),
-    reraise=True,
-)
-def _call_openai(prompt: str, temperature: float = 0.7, max_tokens: int = 4096) -> str:
-    """Call OpenAI API with retry logic."""
-    try:
-        from openai import OpenAI
-        key = get_openai_api_key()
-        if not key:
-            raise ValueError("OPENAI_API_KEY not set in environment or session state.")
-        client = OpenAI(api_key=key)
-        response = client.chat.completions.create(
-            model=OPENAI_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=temperature,
-            max_tokens=max_tokens,
-        )
-        return response.choices[0].message.content
-    except ImportError:
-        raise ImportError("openai not installed. Run: pip install openai")
-
-
-# ── Public Interface ──────────────────────────────────────────────────────────
+# ── Dynamic Generation helper with failover retries ──────────────────────────
 
 def generate_text(
     prompt: str,
@@ -180,25 +224,9 @@ def generate_text(
     use_cache: bool = True,
     system_context: Optional[str] = None,
 ) -> str:
-    """
-    Primary AI text generation function.
-
-    Args:
-        prompt: User prompt text
-        temperature: Creativity level (0.0-1.0)
-        max_tokens: Maximum response length
-        use_cache: Whether to cache the response
-        system_context: Optional system context prepended to prompt
-
-    Returns:
-        Generated text response
-    """
+    """Primary AI text generation with model discovery, retries, and OpenAI fallbacks."""
     prompt = _sanitize_prompt(prompt)
-
-    if system_context:
-        full_prompt = f"{system_context}\n\n{prompt}"
-    else:
-        full_prompt = prompt
+    full_prompt = f"{system_context}\n\n{prompt}" if system_context else prompt
 
     # Check cache
     if use_cache:
@@ -209,30 +237,73 @@ def generate_text(
 
     _check_rate_limit()
 
-    try:
-        gemini_key = get_gemini_api_key()
-        openai_key = get_openai_api_key()
-        if AI_PROVIDER == "gemini" and gemini_key:
-            result = _call_gemini(full_prompt, temperature, max_tokens)
-            logger.info(f"Gemini API call successful ({len(result)} chars)")
-        elif openai_key:
-            result = _call_openai(full_prompt, temperature, max_tokens)
-            logger.info(f"OpenAI API call successful ({len(result)} chars)")
-        else:
-            # Demo mode — return structured placeholder
-            result = _demo_response(prompt)
-            logger.warning("No API key configured. Running in demo mode.")
-    except Exception as e:
-        logger.error(f"AI API call failed: {e}")
-        # Try fallback
-        openai_key = get_openai_api_key()
-        if AI_PROVIDER == "gemini" and openai_key:
-            logger.info("Falling back to OpenAI...")
-            result = _call_openai(full_prompt, temperature, max_tokens)
-        else:
-            raise
+    gemini_key = get_gemini_api_key()
+    openai_key = get_openai_api_key()
+    
+    primary_model = get_selected_gemini_model()
+    result = None
+    last_exception = None
 
-    if use_cache:
+    # 1. Try Gemini
+    if gemini_key:
+        import google.generativeai as genai
+        
+        # Build models priority checklist starting with selected
+        models_to_try = [primary_model]
+        discovered = []
+        try:
+            import streamlit as st
+            discovered = st.session_state.get("discovered_gemini_models", [])
+        except Exception:
+            pass
+        if not discovered:
+            discovered = PRIORITIZED_MODELS
+            
+        for m in discovered:
+            if m not in models_to_try:
+                models_to_try.append(m)
+
+        for current_model in models_to_try:
+            try:
+                logger.info(f"Attempting generation with Gemini model: {current_model}")
+                genai.configure(api_key=gemini_key)
+                model_obj = genai.GenerativeModel(current_model)
+                config = genai.GenerationConfig(
+                    temperature=temperature,
+                    max_output_tokens=max_tokens,
+                )
+                response = model_obj.generate_content(full_prompt, generation_config=config)
+                result = response.text
+                logger.info(f"Gemini API call successful using {current_model} ({len(result)} chars)")
+                break  # Success!
+            except Exception as e:
+                logger.warning(f"Gemini generation failed for model {current_model}: {e}")
+                last_exception = e
+
+    # 2. Try OpenAI Fallback
+    if not result and openai_key:
+        try:
+            logger.info("Initiating OpenAI fallback...")
+            from openai import OpenAI
+            client = OpenAI(api_key=openai_key)
+            response = client.chat.completions.create(
+                model=OPENAI_MODEL,
+                messages=[{"role": "user", "content": full_prompt}],
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
+            result = response.choices[0].message.content
+            logger.info(f"OpenAI API call successful ({len(result)} chars)")
+        except Exception as e:
+            logger.error(f"OpenAI fallback failed: {e}")
+            last_exception = e
+
+    # 3. Fallback to Demo Mode
+    if not result:
+        logger.warning("No generative AI providers active or all failed. Returning Demo Mode placeholder.")
+        result = _demo_response(prompt)
+
+    if use_cache and result:
         _response_cache[_cache_key(full_prompt, temperature=temperature)] = result
 
     return result
@@ -283,13 +354,7 @@ def _demo_response(prompt: str) -> str:
 
 def embed_text(texts: List[str]) -> List[List[float]]:
     """
-    Generate vector embeddings for a list of texts using the configured AI provider.
-
-    Args:
-        texts: List of strings to embed
-
-    Returns:
-        List of embedding vectors (each vector is a list of floats)
+    Generate vector embeddings for a list of texts using primary/fallback providers.
     """
     if not texts:
         return []
@@ -299,12 +364,11 @@ def embed_text(texts: List[str]) -> List[List[float]]:
     gemini_key = get_gemini_api_key()
     openai_key = get_openai_api_key()
 
-    # Try Gemini if configured as primary
-    if AI_PROVIDER == "gemini" and gemini_key:
+    # 1. Try Gemini
+    if gemini_key:
         try:
             import google.generativeai as genai
             genai.configure(api_key=gemini_key)
-            # models/text-embedding-004 is the standard Gemini embedding model
             result = genai.embed_content(
                 model="models/text-embedding-004",
                 content=texts,
@@ -315,19 +379,17 @@ def embed_text(texts: List[str]) -> List[List[float]]:
             else:
                 raise ValueError("Embedding key not found in Gemini response.")
         except Exception as e:
-            logger.warning(f"Gemini embedding failed: {e}. Trying OpenAI fallback if available...")
-            if openai_key:
-                return _embed_openai(texts)
-            raise
-    # Otherwise try OpenAI
-    elif openai_key:
+            logger.warning(f"Gemini embedding failed: {e}. Trying OpenAI fallback...")
+
+    # 2. Try OpenAI Fallback
+    if openai_key:
         try:
             return _embed_openai(texts)
         except Exception as e:
-            logger.error(f"OpenAI embedding failed: {e}")
-            raise
-    else:
-        raise ValueError("No AI provider API key configured for embeddings.")
+            logger.warning(f"OpenAI embedding fallback failed: {e}. Using local fallback...")
+
+    # 3. Local Hash-based fallback
+    return _generate_local_vectors(texts)
 
 
 def _embed_openai(texts: List[str]) -> List[List[float]]:
@@ -341,6 +403,31 @@ def _embed_openai(texts: List[str]) -> List[List[float]]:
     return [data.embedding for data in response.data]
 
 
+def _generate_local_vectors(texts: List[str], dimension: int = 768) -> List[List[float]]:
+    """Generates simple local text vectors using hash-based word representation for ranker."""
+    import numpy as np
+    vectors = []
+    for text in texts:
+        vec = np.zeros(dimension)
+        words = text.lower().split()
+        if not words:
+            vectors.append(vec.tolist())
+            continue
+        for word in words:
+            idx = int(hashlib.sha256(word.encode()).hexdigest(), 16) % dimension
+            vec[idx] += 1.0
+        norm = np.linalg.norm(vec)
+        if norm > 0:
+            vec = vec / norm
+        vectors.append(vec.tolist())
+    return vectors
+
+
+def generate_embeddings(texts: List[str]) -> List[List[float]]:
+    """Centralized text embedding generation with fallback and local options."""
+    return embed_text(texts)
+
+
 def is_ai_configured() -> bool:
     """Check if any AI provider is properly configured."""
     return has_api_key()
@@ -349,8 +436,8 @@ def is_ai_configured() -> bool:
 def get_ai_provider_info() -> Dict:
     """Return current AI provider configuration info."""
     return {
-        "provider": AI_PROVIDER if is_ai_configured() else "demo",
-        "model": GEMINI_MODEL if AI_PROVIDER == "gemini" else OPENAI_MODEL,
+        "provider": get_ai_provider(),
+        "model": get_selected_gemini_model() if get_ai_provider() == "gemini" else OPENAI_MODEL,
         "configured": is_ai_configured(),
         "cache_ttl": CACHE_TTL,
         "rate_limit_per_min": _rate_limit_per_min,

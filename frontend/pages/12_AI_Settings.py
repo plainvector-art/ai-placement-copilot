@@ -6,7 +6,9 @@ import streamlit as st
 from frontend.components.styles import inject_css
 from backend.services.ai_client import (
     get_gemini_api_key, get_openai_api_key,
-    verify_gemini_connection, is_ai_configured
+    verify_gemini_connection, verify_api_key,
+    is_ai_configured, discover_gemini_models,
+    get_best_available_model, PRIORITIZED_MODELS
 )
 
 st.set_page_config(
@@ -128,11 +130,47 @@ with col_form:
         help="Keeps keys stored in memory during the active session. Keys are never saved to disk."
     )
 
-    col_btn1, col_btn2 = st.columns(2)
-    with col_btn1:
-        save_btn = st.button("💾 Save Credentials", use_container_width=True, type="primary")
-    with col_btn2:
-        test_btn = st.button("🧪 Test Gemini Connection", use_container_width=True)
+    # Model selection dropdown populated dynamically
+    st.markdown('<div class="section-header"><div class="section-icon">🤖</div><h3 class="section-title">Gemini Model Selection</h3></div>', unsafe_allow_html=True)
+    
+    discovered_models = st.session_state.get("discovered_gemini_models")
+    if not discovered_models:
+        resolved_key = gemini_input.strip()
+        if resolved_key == "••••••••••••••••••••":
+            resolved_key = get_gemini_api_key()
+        discovered_models = discover_gemini_models(resolved_key)
+        if discovered_models:
+            st.session_state.discovered_gemini_models = discovered_models
+
+    if not discovered_models:
+        discovered_models = PRIORITIZED_MODELS
+
+    current_model = st.session_state.get("gemini_model") or get_best_available_model(discovered_models)
+    
+    # Ensure current_model is in options to prevent ValueError
+    if current_model not in discovered_models:
+        discovered_models = [current_model] + list(discovered_models)
+
+    selected_model = st.selectbox(
+        "Active Gemini Model",
+        options=discovered_models,
+        index=discovered_models.index(current_model),
+        help="Select which Google Gemini model to run AI generations on."
+    )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    col_btn_save, col_btn_tg, col_btn_to = st.columns(3)
+    with col_btn_save:
+        save_btn = st.button("💾 Save Settings", use_container_width=True, type="primary")
+    with col_btn_tg:
+        test_gemini_btn = st.button("🧪 Test Gemini", use_container_width=True)
+    with col_btn_to:
+        test_openai_btn = st.button("🧪 Test OpenAI", use_container_width=True)
+
+    col_btn_refresh, _ = st.columns([1.5, 1.5])
+    with col_btn_refresh:
+        refresh_btn = st.button("🔄 Refresh Discovered Models", use_container_width=True)
 
     if save_btn:
         # Validate and clean keys
@@ -153,11 +191,26 @@ with col_form:
 
         st.session_state.gemini_api_key = clean_gemini
         st.session_state.openai_api_key = clean_openai
+        st.session_state.gemini_model = selected_model
         st.session_state.remember_keys = remember_me
-        st.success("✅ Credentials saved successfully in active session state!")
+        st.success("✅ Configuration saved successfully!")
         st.rerun()
 
-    if test_btn:
+    if refresh_btn:
+        with st.spinner("Fetching available Gemini models..."):
+            current_key = gemini_input.strip()
+            if current_key == "••••••••••••••••••••":
+                current_key = get_gemini_api_key()
+            discovered = discover_gemini_models(current_key)
+            if discovered:
+                st.session_state.discovered_gemini_models = discovered
+                st.session_state.gemini_model = get_best_available_model(discovered)
+                st.success("✅ Models list refreshed!")
+            else:
+                st.error("❌ Failed to query models. Please verify your Gemini API key.")
+            st.rerun()
+
+    if test_gemini_btn:
         testing_key = gemini_input.strip()
         if testing_key == "••••••••••••••••••••":
             testing_key = st.session_state.get("gemini_api_key") or get_gemini_api_key()
@@ -166,7 +219,22 @@ with col_form:
             st.error("❌ Please provide a Gemini API key to test.")
         else:
             with st.spinner("Connecting to Google Gemini API..."):
-                success, msg = verify_gemini_connection(testing_key)
+                success, msg = verify_api_key("gemini", testing_key)
+                if success:
+                    st.success("✅ Connection Successful! The key is valid.")
+                else:
+                    st.error(f"❌ Connection Failed: {msg}")
+
+    if test_openai_btn:
+        testing_key = openai_input.strip()
+        if testing_key == "••••••••••••••••••••":
+            testing_key = st.session_state.get("openai_api_key") or get_openai_api_key()
+            
+        if not testing_key:
+            st.error("❌ Please provide an OpenAI API key to test.")
+        else:
+            with st.spinner("Connecting to OpenAI API..."):
+                success, msg = verify_api_key("openai", testing_key)
                 if success:
                     st.success("✅ Connection Successful! The key is valid.")
                 else:
@@ -180,11 +248,12 @@ with col_status:
     is_openai_active = bool(get_openai_api_key())
     
     if is_gemini_active:
-        st.markdown("""
+        st.markdown(f"""
         <div style="background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.15);
              border-radius: 12px; padding: 1.5rem; text-align: center; margin-bottom: 1rem;">
             <h4 style="color:#22c55e; margin:0 0 0.5rem 0;">🟢 Gemini Connected</h4>
             <p style="color:#9898b0; font-size:0.85rem; margin:0;">
+                Model: <strong>{current_model}</strong><br>
                 The platform is fully active. Gemini API will be used to analyze resumes, run mocks, and answer career queries.
             </p>
         </div>
