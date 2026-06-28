@@ -22,17 +22,15 @@ st.set_page_config(
 
 inject_css()
 
-# Override styling to match the premium dark gold/beige design from the screenshot
+# Override styling to match the premium gold and deep emerald bento design
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,0..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
-
 /* ── Typography ─────────────────────────────────────────────────────────────── */
 h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', serif !important;
+    font-family: 'Inter', sans-serif !important;
 }
 p, li, label, .stMarkdown, .premium-card-title, .premium-card-desc, .sidebar-logo, .sidebar-section-label {
-    font-family: 'Lora', serif !important;
+    font-family: 'Inter', sans-serif !important;
 }
 
 /* Exclude Material Symbols from generic overrides to prevent text rendering */
@@ -43,9 +41,6 @@ p, li, label, .stMarkdown, .premium-card-title, .premium-card-desc, .sidebar-log
 }
 
 /* ── Layout ──────────────────────────────────────────────────────────────────── */
-.stApp {
-    background: radial-gradient(circle at top left, #151811 0%, #0a0c08 50%, #030403 100%) !important;
-}
 header {
     visibility: visible !important;
     background: transparent !important;
@@ -53,35 +48,15 @@ header {
 
 /* ── Sidebar ─────────────────────────────────────────────────────────────────── */
 [data-testid="stSidebar"] {
-    background: #090a07 !important;
-    border-right: 1px solid rgba(212, 175, 55, 0.15) !important;
-}
-
-/* Style native Streamlit expand/collapse icons */
-[data-testid="collapsedControl"] button,
-button[data-testid="stSidebarCollapseButton"] {
-    color: #d4af37 !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    transition: all 0.3s ease !important;
-}
-[data-testid="collapsedControl"] button svg,
-button[data-testid="stSidebarCollapseButton"] svg {
-    fill: #d4af37 !important;
-    color: #d4af37 !important;
-}
-[data-testid="collapsedControl"] button:hover,
-button[data-testid="stSidebarCollapseButton"]:hover {
-    background-color: rgba(212, 175, 55, 0.1) !important;
-    box-shadow: 0 0 10px rgba(212, 175, 55, 0.2) !important;
+    background: #0e0e0e !important;
+    border-right: 1px solid rgba(233, 193, 118, 0.1) !important;
 }
 
 /* ── Cards ───────────────────────────────────────────────────────────────────── */
 .premium-card {
-    background: rgba(18, 20, 16, 0.65) !important;
-    border: 1px solid rgba(212, 175, 55, 0.12) !important;
-    border-radius: 12px !important;
+    background: rgba(27, 48, 34, 0.25) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 16px !important;
     padding: 1.5rem 1rem !important;
     text-align: center !important;
     margin-bottom: 1rem !important;
@@ -93,20 +68,20 @@ button[data-testid="stSidebarCollapseButton"]:hover {
     align-items: center !important;
     justify-content: flex-start !important;
     gap: 0.5rem !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
 }
 .premium-card:hover {
-    border-color: rgba(212, 175, 55, 0.45) !important;
+    border-color: rgba(233, 193, 118, 0.25) !important;
     transform: translateY(-4px) !important;
-    background: rgba(24, 26, 20, 0.8) !important;
-    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.12), 0 0 15px rgba(212, 175, 55, 0.04) !important;
+    background: rgba(27, 48, 34, 0.4) !important;
+    box-shadow: 0 8px 24px rgba(233, 193, 118, 0.15) !important;
 }
 .premium-card-icon-container {
     width: 54px;
     height: 54px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, rgba(212,175,55,0) 70%);
-    border: 1px solid rgba(212,175,55,0.22);
+    background: radial-gradient(circle, rgba(233,193,118,0.08) 0%, rgba(233,193,118,0) 70%);
+    border: 1px solid rgba(233,193,118,0.2);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -116,23 +91,23 @@ button[data-testid="stSidebarCollapseButton"]:hover {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    border: 1px solid rgba(212,175,55,0.1);
+    border: 1px solid rgba(233,193,118,0.1);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.35rem;
+    color: #e9c176;
 }
 .premium-card-title {
     font-size: 0.95rem !important;
     font-weight: 600 !important;
-    color: #e6dfd3 !important;
+    color: #e5e2e1 !important;
     letter-spacing: 0.01em !important;
 }
 .premium-card-desc {
     font-size: 0.72rem !important;
-    color: #8c8577 !important;
+    color: #8d928c !important;
     line-height: 1.45 !important;
-    font-style: italic !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -284,38 +259,205 @@ if not has_api_key():
                 st.rerun()
 
 
-# Logo circular containers, main title, ornament and description
-st.markdown("""
-<div style="display:flex; justify-content:center; margin-top:2rem; margin-bottom:1.25rem;">
-    <div style="width: 86px; height: 86px; border-radius: 50%; 
-                background: radial-gradient(circle, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0) 70%);
-                border: 1px solid rgba(212,175,55,0.35);
-                display: flex; align-items: center; justify-content: center;
-                box-shadow: 0 0 30px rgba(212,175,55,0.08);">
-        <div style="width: 70px; height: 70px; border-radius: 50%;
-                    border: 1px solid rgba(212,175,55,0.18);
-                    display: flex; align-items: center; justify-content: center;
-                    font-size: 2.3rem; color: #d4af37;">
-            🎯
+# Calculate values dynamically
+profile = st.session_state.get("profile")
+ats = st.session_state.get("ats_score")
+readiness = st.session_state.get("readiness_score")
+target_role = st.session_state.get("target_role", "Software Engineer")
+
+name = "Alexander"
+if profile and profile.get("name"):
+    name = profile.get("name")
+skills_count = len(profile.get("skills", [])) if profile else 0
+projects_count = len(profile.get("projects", [])) if profile else 0
+
+# Calculate score
+score_value = 0.0
+score_label = "N/A"
+if readiness:
+    score_value = readiness.get("overall_score", 0.0)
+    score_label = f"{score_value:.0f}%"
+elif ats:
+    score_value = ats.get("overall_score", 0.0)
+    score_label = f"{score_value:.0f}%"
+else:
+    score_value = 88.0 # Default mockup value
+    score_label = "88%"
+
+# Calculate offset for SVG gauge (circumference = 314.16 for r=50)
+stroke_offset = 314.16
+if score_value > 0:
+    stroke_offset = 314.16 * (1 - score_value / 100.0)
+
+# Render Custom CSS Grid styled Bento Cards
+st.markdown(f"""
+<div class="bento-grid" style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; margin-top: 1rem; margin-bottom: 2rem;">
+    <!-- Hello Card (col-span-8) -->
+    <div class="glass-module rounded-3xl p-8 bento-card animate-delay-1 flex flex-col justify-between" style="grid-column: span 8; min-height: 280px; position: relative; display: flex; flex-direction: column; justify-content: space-between; border-radius: 24px; padding: 2rem;">
+        <div style="z-index: 10;">
+            <h2 style="font-size: 2.2rem; font-weight: 800; color: #e5e2e1; margin: 0 0 0.5rem 0; font-family: 'Inter', sans-serif;">Hello, {name}.</h2>
+            <p style="color: #c3c8c1; font-size: 1.05rem; margin: 0 0 1.5rem 0; max-width: 480px; line-height: 1.6; font-family: 'Inter', sans-serif;">
+                Your Cognitive Agent has analyzed <span style="color: #e9c176; font-weight: 600;">{skills_count if profile else 14} skills</span> and <span style="color: #e9c176; font-weight: 600;">{projects_count if profile else 3} matches</span>. 
+                {"Your profile is active and optimized." if profile else "Your deep tech profile has analyzed 14 new openings today."}
+            </p>
+        </div>
+        <div style="display: flex; gap: 12px; z-index: 10;">
+            <a href="/Resume_Analysis" target="_self" style="text-decoration: none;">
+                <button class="breathing-button" style="background: #e9c176; color: #1b3022; border: none; border-radius: 12px; font-weight: 700; padding: 0.75rem 1.5rem; cursor: pointer; transition: all 0.3s; font-family: 'Inter', sans-serif;">
+                    Review Match
+                </button>
+            </a>
+            <a href="/Resume_Analysis" target="_self" style="text-decoration: none;">
+                <button style="background: rgba(255,255,255,0.05); color: #e5e2e1; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-weight: 600; padding: 0.75rem 1.5rem; cursor: pointer; transition: all 0.3s; font-family: 'Inter', sans-serif;">
+                    Dismiss
+                </button>
+            </a>
+        </div>
+        <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 35%; opacity: 0.25; pointer-events: none; display: flex; align-items: center; justify-content: center;">
+            <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#e9c176" stroke-width="0.75" stroke-dasharray="2 4"></circle>
+                <circle cx="50" cy="50" r="30" fill="none" stroke="#b4cdb8" stroke-width="0.5"></circle>
+                <path d="M 50 10 L 50 90 M 10 50 L 90 50" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"></path>
+            </svg>
         </div>
     </div>
+
+    <!-- Success Ratio Card (col-span-4) -->
+    <div class="glass-module rounded-3xl p-8 bento-card animate-delay-2 flex flex-col items-center justify-center text-center" style="grid-column: span 4; min-height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-radius: 24px; padding: 2rem;">
+        <div style="position: relative; width: 120px; height: 120px; margin-bottom: 1rem;">
+            <svg style="width: 100%; height: 100%; transform: rotate(-90deg);">
+                <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="8"></circle>
+                <circle class="circular-gauge" cx="60" cy="60" r="50" fill="none" stroke="#e9c176" stroke-width="8" 
+                        stroke-dasharray="314.16" stroke-dashoffset="{stroke_offset}" stroke-linecap="round"></circle>
+            </svg>
+            <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;">
+                <span style="font-size: 1.8rem; font-weight: 900; color: #e5e2e1; font-family: 'Inter', sans-serif;">{score_label}</span>
+            </div>
+        </div>
+        <h3 style="font-size: 1.15rem; color: #e9c176; margin: 0 0 0.25rem 0; font-family: 'Inter', sans-serif; font-weight: 700;">Success Ratio</h3>
+        <p style="color: #8d928c; font-size: 0.85rem; margin: 0; font-family: 'Inter', sans-serif;">Trending up 4% this week</p>
+    </div>
+
+    <!-- Shadow Profiles Card (col-span-5) -->
+    <div class="glass-module rounded-3xl p-8 bento-card animate-delay-3" style="grid-column: span 5; min-height: 320px; border-radius: 24px; padding: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1.15rem; color: #FAF9F6; margin: 0; font-family: 'Inter', sans-serif; font-weight: 700;">Shadow Profiles</h3>
+            <span class="material-symbols-outlined" style="color: #e9c176; font-size: 20px;">diversity_3</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <!-- Active role -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; background: rgba(27, 48, 34, 0.2); border-radius: 16px; border: 1px solid rgba(233, 193, 118, 0.15);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span class="material-symbols-outlined" style="color: #e9c176; font-size: 18px;">code</span>
+                    <div>
+                        <p style="font-weight: 700; color: #e5e2e1; margin: 0; font-size: 0.9rem; font-family: 'Inter', sans-serif;">{target_role}</p>
+                        <p style="font-size: 0.75rem; color: #8d928c; margin: 0; font-family: 'Inter', sans-serif;">Active Agent</p>
+                    </div>
+                </div>
+                <span style="font-size: 9px; font-weight: bold; color: #e9c176; background: rgba(27, 48, 34, 0.6); padding: 0.25rem 0.5rem; border-radius: 99px; border: 1px solid rgba(233, 193, 118, 0.25); text-transform: uppercase; font-family: 'Inter', sans-serif;">Optimized</span>
+            </div>
+            
+            <!-- Dormant role -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 16px; border: 1px solid rgba(255,255,255,0.04); opacity: 0.6;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span class="material-symbols-outlined" style="color: #8d928c; font-size: 18px;">payments</span>
+                    <div>
+                        <p style="font-weight: 700; color: #e5e2e1; margin: 0; font-size: 0.9rem; font-family: 'Inter', sans-serif;">FinTech Pro</p>
+                        <p style="font-size: 0.75rem; color: #8d928c; margin: 0; font-family: 'Inter', sans-serif;">Dormant Agent</p>
+                    </div>
+                </div>
+                <span style="font-size: 9px; font-weight: bold; color: #c3c8c1; background: rgba(255,255,255,0.05); padding: 0.25rem 0.5rem; border-radius: 99px; text-transform: uppercase; font-family: 'Inter', sans-serif;">Draft</span>
+            </div>
+
+            <!-- Third role -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; background: rgba(27, 48, 34, 0.2); border-radius: 16px; border: 1px solid rgba(233, 193, 118, 0.15);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span class="material-symbols-outlined" style="color: #e9c176; font-size: 18px;">palette</span>
+                    <div>
+                        <p style="font-weight: 700; color: #e5e2e1; margin: 0; font-size: 0.9rem; font-family: 'Inter', sans-serif;">Creative UI</p>
+                        <p style="font-size: 0.75rem; color: #8d928c; margin: 0; font-family: 'Inter', sans-serif;">Scanning Mode</p>
+                    </div>
+                </div>
+                <span style="font-size: 9px; font-weight: bold; color: #e9c176; background: rgba(27, 48, 34, 0.6); padding: 0.25rem 0.5rem; border-radius: 99px; border: 1px solid rgba(233, 193, 118, 0.25); text-transform: uppercase; font-family: 'Inter', sans-serif;">Processing</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mock Interviews Card (col-span-7) -->
+    <div class="glass-module rounded-3xl p-8 bento-card animate-delay-4" style="grid-column: span 7; min-height: 320px; border-radius: 24px; padding: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <div>
+                <h3 style="font-size: 1.15rem; color: #FAF9F6; margin: 0; font-family: 'Inter', sans-serif; font-weight: 700;">Mock Interviews</h3>
+                <p style="color: #8d928c; font-size: 0.8rem; margin: 0.2rem 0 0 0; font-family: 'Inter', sans-serif;">Practice makes permanent.</p>
+            </div>
+            <a href="/Mock_Interview" target="_self" style="text-decoration: none;">
+                <span class="material-symbols-outlined" style="color: #e9c176; font-size: 20px; cursor: pointer; padding: 8px; background: rgba(233, 193, 118, 0.1); border-radius: 12px;">calendar_month</span>
+            </a>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <!-- Sim 1 -->
+            <div style="display: flex; flex-direction: column; justify-content: space-between; padding: 1.25rem; background: rgba(27, 48, 34, 0.2); border-radius: 20px; border: 1px solid rgba(233, 193, 118, 0.15);">
+                <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+                        <span style="font-size: 9px; font-weight: bold; background: rgba(233, 193, 118, 0.2); color: #e9c176; padding: 2px 6px; border-radius: 4px; font-family: 'Inter', sans-serif;">System Design</span>
+                        <span style="font-size: 0.7rem; color: #8d928c; font-family: 'Inter', sans-serif;">Today, 2:00 PM</span>
+                    </div>
+                    <h4 style="font-weight: 700; color: #e5e2e1; margin: 0 0 0.25rem 0; font-size: 0.95rem; font-family: 'Inter', sans-serif;">Google Simulation</h4>
+                    <p style="font-size: 0.75rem; color: #8d928c; line-height: 1.4; margin-bottom: 1.5rem; font-family: 'Inter', sans-serif;">L6 Backend infrastructure architecture review.</p>
+                </div>
+                <a href="/Mock_Interview" target="_self" style="text-decoration: none; width: 100%;">
+                    <button class="breathing-button" style="width: 100%; border: none; background: #e9c176; color: #1b3022; font-weight: 700; font-size: 0.8rem; border-radius: 10px; padding: 0.5rem 0; cursor: pointer; font-family: 'Inter', sans-serif;">Join Now</button>
+                </a>
+            </div>
+            
+            <!-- Sim 2 -->
+            <div style="display: flex; flex-direction: column; justify-content: space-between; padding: 1.25rem; background: rgba(255,255,255,0.02); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
+                <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+                        <span style="font-size: 9px; font-weight: bold; background: rgba(255,255,255,0.05); color: #c3c8c1; padding: 2px 6px; border-radius: 4px; font-family: 'Inter', sans-serif;">Behavioral</span>
+                        <span style="font-size: 0.7rem; color: #8d928c; font-family: 'Inter', sans-serif;">Tomorrow</span>
+                    </div>
+                    <h4 style="font-weight: 700; color: #e5e2e1; margin: 0 0 0.25rem 0; font-size: 0.95rem; font-family: 'Inter', sans-serif;">Culture Fit A.I</h4>
+                    <p style="font-size: 0.75rem; color: #8d928c; line-height: 1.4; margin-bottom: 1.5rem; font-family: 'Inter', sans-serif;">Situational analysis for fast-paced growth environments.</p>
+                </div>
+                <a href="/Mock_Interview" target="_self" style="text-decoration: none; width: 100%;">
+                    <button style="width: 100%; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #c3c8c1; font-weight: 700; font-size: 0.8rem; border-radius: 10px; padding: 0.5rem 0; cursor: pointer; font-family: 'Inter', sans-serif;">Prepare</button>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resume Optimization Card (col-span-12) -->
+    <div class="glass-module rounded-3xl p-8 bento-card animate-delay-5 flex flex-col md:flex-row items-center gap-6" style="grid-column: span 12; border-color: rgba(233, 193, 118, 0.2) !important; border-radius: 24px; padding: 2rem; display: flex; align-items: center;">
+        <div style="background: rgba(233, 193, 118, 0.1); padding: 1.25rem; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-right: 1.5rem;">
+            <span class="material-symbols-outlined" style="color: #e9c176; font-size: 36px;">auto_fix_high</span>
+        </div>
+        <div style="flex: 1;">
+            <h3 style="font-size: 1.15rem; color: #FAF9F6; margin: 0 0 0.5rem 0; font-family: 'Inter', sans-serif; font-weight: 700;">Resume Optimization</h3>
+            <p style="color: #c3c8c1; font-size: 0.85rem; line-height: 1.5; margin: 0 0 1rem 0; font-family: 'Inter', sans-serif;">
+                {"Your resume is parsed. Our AI has detected new ATS keyword shifts in the cloud architecture domain. Let's realign your bullet points." if profile else "No resume uploaded yet. Upload your resume to optimize ATS keyword match rates dynamically."}
+            </p>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <span style="font-size: 9px; font-weight: bold; color: #e9c176; background: rgba(233, 193, 118, 0.1); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(233, 193, 118, 0.15); font-family: 'Inter', sans-serif;">#KUBERNETES</span>
+                <span style="font-size: 9px; font-weight: bold; color: #e9c176; background: rgba(233, 193, 118, 0.1); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(233, 193, 118, 0.15); font-family: 'Inter', sans-serif;">#GOLANG</span>
+                <span style="font-size: 9px; font-weight: bold; color: #e9c176; background: rgba(233, 193, 118, 0.1); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(233, 193, 118, 0.15); font-family: 'Inter', sans-serif;">#DISTRIBUTEDSYSTEMS</span>
+            </div>
+        </div>
+        <a href="/Resume_Analysis" target="_self" style="text-decoration: none;">
+            <button class="breathing-button" style="background: #e9c176; color: #1b3022; border: none; border-radius: 12px; font-weight: 800; padding: 0.9rem 2rem; cursor: pointer; transition: all 0.3s; white-space: nowrap; font-family: 'Inter', sans-serif;">
+                Auto-Optimize
+            </button>
+        </a>
+    </div>
 </div>
-<h1 style="font-family:'Playfair Display', serif !important; font-size:3.1rem; font-weight:400; text-align:center; margin-bottom:0.75rem; letter-spacing:0.02em; line-height:1.2;">
-    <span style="color:#e6dfd3;">AI Interview &</span> 
-    <span style="color:#d4af37; font-weight:500;">Placement Copilot</span>
-</h1>
-<div style="display:flex; align-items:center; justify-content:center; margin: 1.25rem auto; max-width: 400px; gap: 15px;">
-    <div style="flex:1; height:1px; background:linear-gradient(90deg, transparent, rgba(212,175,55,0.25));"></div>
-    <div style="color:rgba(212,175,55,0.5); font-size:0.7rem; letter-spacing:0.1em;">❖</div>
-    <div style="flex:1; height:1px; background:linear-gradient(270deg, transparent, rgba(212,175,55,0.25));"></div>
+
+<div style="margin-top: 3rem; margin-bottom: 1.5rem;">
+    <h3 style="font-family: 'Inter', sans-serif; font-size: 1.5rem; font-weight: 700; color: #FAF9F6; margin-bottom: 0.5rem;">Copilot Features</h3>
+    <p style="color: #8d928c; font-size: 0.875rem; margin: 0 0 1.5rem 0;">Launch other career readiness engines</p>
 </div>
-<p style="font-family:'Lora', serif; font-size:1.02rem; color:#a29c90; text-align:center; max-width:700px; margin: 0 auto 3rem auto; line-height:1.75; font-style:italic;">
-    Your AI-powered career coach. Upload your resume and get personalized insights, 
-    skill gap analysis, mock interviews, and learning roadmaps.
-</p>
 """, unsafe_allow_html=True)
 
-# Feature Grid
+# Feature Sub-Grid
 features = [
     ("📄", "Resume Analysis", "ATS scoring, keyword optimization, and improvement tips", "/Resume_Analysis"),
     ("🎯", "Skill Gap Analysis", "Compare your skills against role requirements visually", "/Skill_Gap"),
@@ -330,9 +472,9 @@ features = [
     ("🏆", "Candidate Ranker", "Rank multiple resumes against a JD with AI scoring", "/Candidate_Ranker"),
 ]
 
-cols = st.columns(5)
+cols = st.columns(4)
 for i, (icon, title, desc, url) in enumerate(features):
-    with cols[i % 5]:
+    with cols[i % 4]:
         st.markdown(f"""
         <a href="{url}" target="_self" style="text-decoration:none;">
             <div class="premium-card">
@@ -351,17 +493,16 @@ for i, (icon, title, desc, url) in enumerate(features):
 if not st.session_state.profile:
     st.markdown("---")
     st.markdown("""
-    <div style="background: linear-gradient(135deg, rgba(212,175,55,0.04), rgba(212,175,55,0.01));
-         border: 1px solid rgba(212,175,55,0.15); border-radius:16px; padding:2rem; text-align:center; margin-top:1rem;">
-        <h3 style="color:#e6dfd3; font-family:'Playfair Display', serif; margin:0 0 0.5rem 0; font-weight:400; font-size: 1.4rem;">🚀 Get Started in 30 Seconds</h3>
-        <p style="color:#8c8577; font-family:'Lora', serif; margin:0 0 1.5rem 0; font-style:italic;">
-            Navigate to <strong style="color:#d4af37; font-weight:500;">Resume Analysis</strong> in the sidebar to upload your resume.
+    <div style="background: rgba(27, 48, 34, 0.15); border: 1px solid rgba(233, 193, 118, 0.15); border-radius:16px; padding:2rem; text-align:center; margin-top:1rem;">
+        <h3 style="color:#e5e2e1; font-family:'Inter', serif; margin:0 0 0.5rem 0; font-weight:700; font-size: 1.4rem;">🚀 Get Started in 30 Seconds</h3>
+        <p style="color:#c3c8c1; font-family:'Inter', serif; margin:0 0 1.5rem 0; font-style:italic;">
+            Navigate to <strong style="color:#e9c176; font-weight:500;">Resume Analysis</strong> in the sidebar to upload your resume.
         </p>
-        <p style="color:#5c564c; font-family:'Lora', serif; font-size:0.8rem; margin:0;">
+        <p style="color:#8d928c; font-family:'Inter', serif; font-size:0.8rem; margin:0;">
             Supports PDF and DOCX • Secure • AI-Powered • Free to use
         </p>
     </div>
     """, unsafe_allow_html=True)
 else:
-    st.success(f"✅ Resume loaded for **{st.session_state.profile.get('name', 'you')}**. Navigate to any feature using the sidebar!")
+    st.success(f"✅ Resume loaded for **{st.session_state.profile.get('name', 'you')}**. Navigate to any feature using the bento modules or the sidebar!")
 

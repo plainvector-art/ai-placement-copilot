@@ -14,59 +14,15 @@ st.set_page_config(
 
 inject_css()
 
-# Override styling to match the premium dark gold/beige design from the screenshot
+# Override styling to match the premium gold and deep emerald bento design
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,0..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
-
-/* ── Typography ─────────────────────────────────────────────────────────────── */
-h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', serif !important;
+h1, h2, h3, h4, h5, h6, p, li, label, .stMarkdown, .sidebar-logo, .sidebar-section-label {
+    font-family: 'Inter', sans-serif !important;
 }
-p, li, label, .stMarkdown, .sidebar-logo, .sidebar-section-label {
-    font-family: 'Lora', serif !important;
-}
-
-/* Exclude Material Symbols from generic overrides to prevent text rendering */
-.material-symbols-outlined,
-.material-symbols-rounded,
-.material-symbols-sharp {
-    font-family: 'Material Symbols Outlined', 'Material Symbols Rounded', 'Material Symbols Sharp' !important;
-}
-
-/* ── Layout ──────────────────────────────────────────────────────────────────── */
-.stApp {
-    background: radial-gradient(circle at top left, #151811 0%, #0a0c08 50%, #030403 100%) !important;
-}
-header {
-    visibility: visible !important;
-    background: transparent !important;
-}
-
-/* ── Sidebar ─────────────────────────────────────────────────────────────────── */
 [data-testid="stSidebar"] {
-    background: #090a07 !important;
-    border-right: 1px solid rgba(212, 175, 55, 0.15) !important;
-}
-
-/* Style native Streamlit expand/collapse icons */
-[data-testid="collapsedControl"] button,
-button[data-testid="stSidebarCollapseButton"] {
-    color: #d4af37 !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    transition: all 0.3s ease !important;
-}
-[data-testid="collapsedControl"] button svg,
-button[data-testid="stSidebarCollapseButton"] svg {
-    fill: #d4af37 !important;
-    color: #d4af37 !important;
-}
-[data-testid="collapsedControl"] button:hover,
-button[data-testid="stSidebarCollapseButton"]:hover {
-    background-color: rgba(212, 175, 55, 0.1) !important;
-    box-shadow: 0 0 10px rgba(212, 175, 55, 0.2) !important;
+    background: #0e0e0e !important;
+    border-right: 1px solid rgba(233, 193, 118, 0.1) !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -290,8 +246,8 @@ if results and jd_parsed:
                 with tab_insights:
                     insights = result.get("insights", {})
                     st.markdown(f"""
-                    <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);
-                         border-radius:12px;padding:1rem;margin-bottom:1rem;color:#f0f0f5;line-height:1.6;font-size:0.9rem;">
+                    <div style="background:rgba(27,48,34,0.3);border:1px solid rgba(233,193,118,0.15);
+                         border-radius:12px;padding:1rem;margin-bottom:1rem;color:#e5e2e1;line-height:1.6;font-size:0.9rem;">
                         {insights.get('fit_analysis')}
                     </div>
                     """, unsafe_allow_html=True)

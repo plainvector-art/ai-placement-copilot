@@ -53,14 +53,14 @@ if readiness:
 
     # ── Hero Score Display ─────────────────────────────────────────────────────
     st.markdown(f"""
-    <div style="background:linear-gradient(135deg,rgba(22,22,31,0.9),rgba(26,16,40,0.9));
-         border:1px solid rgba(139,92,246,0.2);border-radius:20px;
+    <div style="background:linear-gradient(135deg,rgba(14,14,14,0.9),rgba(27,48,34,0.3));
+         border:1px solid rgba(233,193,118,0.15);border-radius:20px;
          padding:2.5rem;text-align:center;margin-bottom:2rem;">
         <div style="font-size:4rem;margin-bottom:0.5rem;">{emoji}</div>
         <div style="font-size:4.5rem;font-weight:900;color:{color};letter-spacing:-0.03em;
              text-shadow:0 0 40px {color}44;">{score:.0f}<span style="font-size:2rem;">%</span></div>
-        <div style="font-size:1.3rem;font-weight:700;color:#f0f0f5;margin-top:0.25rem;">{level}</div>
-        <div style="color:#9898b0;font-size:0.95rem;margin-top:0.75rem;max-width:500px;margin-left:auto;margin-right:auto;">
+        <div style="font-size:1.3rem;font-weight:700;color:#e5e2e1;margin-top:0.25rem;">{level}</div>
+        <div style="color:#c3c8c1;font-size:0.95rem;margin-top:0.75rem;max-width:500px;margin-left:auto;margin-right:auto;">
             {message}
         </div>
     </div>

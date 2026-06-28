@@ -12,20 +12,20 @@ import pandas as pd
 DARK_THEME = {
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
-    "font": {"family": "Inter, sans-serif", "color": "#9898b0"},
-    "colorway": ["#8b5cf6", "#3b82f6", "#06b6d4", "#22c55e", "#f97316", "#ec4899"],
+    "font": {"family": "Inter, sans-serif", "color": "#c3c8c1"},
+    "colorway": ["#e9c176", "#b4cdb8", "#819986", "#7a322f", "#ff9e97", "#5d4201"],
 }
 
 COLORS = {
-    "purple": "#8b5cf6",
-    "blue": "#3b82f6",
-    "cyan": "#06b6d4",
-    "green": "#22c55e",
-    "orange": "#f97316",
-    "red": "#ef4444",
-    "pink": "#ec4899",
-    "bg": "rgba(22, 22, 31, 0.8)",
-    "border": "rgba(255, 255, 255, 0.06)",
+    "purple": "#b4cdb8",  # Sage green
+    "blue": "#819986",    # Sage Accent
+    "cyan": "#e9c176",    # Burnished Gold
+    "green": "#b4cdb8",   # Success Sage
+    "orange": "#e9c176",  # Warning Gold
+    "red": "#7a322f",     # Burgundy / Error
+    "pink": "#ff9e97",
+    "bg": "rgba(27, 48, 34, 0.25)",
+    "border": "rgba(233, 193, 118, 0.1)",
 }
 
 
@@ -380,7 +380,7 @@ def interview_performance_radar(scores: Dict) -> go.Figure:
         fill="toself",
         name="Performance",
         line=dict(color=COLORS["purple"], width=2),
-        fillcolor="rgba(139, 92, 246, 0.2)",
+        fillcolor="rgba(180, 205, 184, 0.25)",
         marker=dict(size=7, color=COLORS["purple"]),
     ))
 
