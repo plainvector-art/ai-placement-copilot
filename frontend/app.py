@@ -27,68 +27,57 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,0..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 
-/* Global font overrides */
+/* ── Typography ─────────────────────────────────────────────────────────────── */
 h1, h2, h3, h4, h5, h6 {
     font-family: 'Playfair Display', serif !important;
 }
-p, span, div, a, li, label, .stMarkdown {
+p, li, label, .stMarkdown, .premium-card-title, .premium-card-desc, .sidebar-logo, .sidebar-section-label {
     font-family: 'Lora', serif !important;
 }
 
-/* Background gradient */
+/* Exclude Material Symbols from generic overrides to prevent text rendering */
+.material-symbols-outlined,
+.material-symbols-rounded,
+.material-symbols-sharp {
+    font-family: 'Material Symbols Outlined', 'Material Symbols Rounded', 'Material Symbols Sharp' !important;
+}
+
+/* ── Layout ──────────────────────────────────────────────────────────────────── */
 .stApp {
     background: radial-gradient(circle at top left, #151811 0%, #0a0c08 50%, #030403 100%) !important;
 }
-
-/* Header visible and transparent */
 header {
     visibility: visible !important;
     background: transparent !important;
 }
 
-/* Sidebar Collapse/Expand Toggle Controls */
-[data-testid="collapsedControl"],
-button[data-testid="stSidebarCollapseButton"],
-section[data-testid="stSidebar"] button {
-    color: transparent !important;
-    background: transparent !important;
-    border: none !important;
-    font-size: 0px !important;
-}
-[data-testid="collapsedControl"] *,
-button[data-testid="stSidebarCollapseButton"] *,
-section[data-testid="stSidebar"] button * {
-    display: none !important;
-}
-
-/* Closed state - double arrow pointing right » */
-[data-testid="collapsedControl"]::before {
-    content: "»" !important;
-    font-size: 1.8rem !important;
-    color: #d4af37 !important;
-    font-weight: 700 !important;
-    display: inline-block !important;
-    line-height: 1 !important;
-}
-
-/* Open state - double arrow pointing left « */
-section[data-testid="stSidebar"] button::before,
-button[data-testid="stSidebarCollapseButton"]::before {
-    content: "«" !important;
-    font-size: 1.8rem !important;
-    color: #d4af37 !important;
-    font-weight: 700 !important;
-    display: inline-block !important;
-    line-height: 1 !important;
-}
-
-/* Customize sidebar sidebar styling */
+/* ── Sidebar ─────────────────────────────────────────────────────────────────── */
 [data-testid="stSidebar"] {
     background: #090a07 !important;
     border-right: 1px solid rgba(212, 175, 55, 0.15) !important;
 }
 
-/* Premium custom card elements */
+/* Style native Streamlit expand/collapse icons */
+[data-testid="collapsedControl"] button,
+button[data-testid="stSidebarCollapseButton"] {
+    color: #d4af37 !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    transition: all 0.3s ease !important;
+}
+[data-testid="collapsedControl"] button svg,
+button[data-testid="stSidebarCollapseButton"] svg {
+    fill: #d4af37 !important;
+    color: #d4af37 !important;
+}
+[data-testid="collapsedControl"] button:hover,
+button[data-testid="stSidebarCollapseButton"]:hover {
+    background-color: rgba(212, 175, 55, 0.1) !important;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.2) !important;
+}
+
+/* ── Cards ───────────────────────────────────────────────────────────────────── */
 .premium-card {
     background: rgba(18, 20, 16, 0.65) !important;
     border: 1px solid rgba(212, 175, 55, 0.12) !important;
@@ -134,14 +123,12 @@ button[data-testid="stSidebarCollapseButton"]::before {
     font-size: 1.35rem;
 }
 .premium-card-title {
-    font-family: 'Lora', serif !important;
     font-size: 0.95rem !important;
     font-weight: 600 !important;
     color: #e6dfd3 !important;
     letter-spacing: 0.01em !important;
 }
 .premium-card-desc {
-    font-family: 'Lora', serif !important;
     font-size: 0.72rem !important;
     color: #8c8577 !important;
     line-height: 1.45 !important;
