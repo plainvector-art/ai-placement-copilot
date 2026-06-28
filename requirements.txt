@@ -47,4 +47,4 @@ pytest-asyncio==0.23.7
 
 # ── Semantic Ranking ─────────────────────────────────────────────────────────
 sentence-transformers==3.0.1
-faiss-cpu==1.8.0
+faiss-cpu==1.11.0
