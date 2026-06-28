@@ -231,6 +231,63 @@ def _demo_response(prompt: str) -> str:
     })
 
 
+def embed_text(texts: List[str]) -> List[List[float]]:
+    """
+    Generate vector embeddings for a list of texts using the configured AI provider.
+
+    Args:
+        texts: List of strings to embed
+
+    Returns:
+        List of embedding vectors (each vector is a list of floats)
+    """
+    if not texts:
+        return []
+
+    _check_rate_limit()
+
+    # Try Gemini if configured as primary
+    if AI_PROVIDER == "gemini" and GEMINI_API_KEY:
+        try:
+            import google.generativeai as genai
+            genai.configure(api_key=GEMINI_API_KEY)
+            # models/text-embedding-004 is the standard Gemini embedding model
+            result = genai.embed_content(
+                model="models/text-embedding-004",
+                content=texts,
+                task_type="retrieval_document"
+            )
+            if "embedding" in result:
+                return result["embedding"]
+            else:
+                raise ValueError("Embedding key not found in Gemini response.")
+        except Exception as e:
+            logger.warning(f"Gemini embedding failed: {e}. Trying OpenAI fallback if available...")
+            if OPENAI_API_KEY:
+                return _embed_openai(texts)
+            raise
+    # Otherwise try OpenAI
+    elif OPENAI_API_KEY:
+        try:
+            return _embed_openai(texts)
+        except Exception as e:
+            logger.error(f"OpenAI embedding failed: {e}")
+            raise
+    else:
+        raise ValueError("No AI provider API key configured for embeddings.")
+
+
+def _embed_openai(texts: List[str]) -> List[List[float]]:
+    """Helper to call OpenAI embedding API."""
+    from openai import OpenAI
+    client = OpenAI(api_key=OPENAI_API_KEY)
+    response = client.embeddings.create(
+        input=texts,
+        model="text-embedding-3-small"
+    )
+    return [data.embedding for data in response.data]
+
+
 def is_ai_configured() -> bool:
     """Check if any AI provider is properly configured."""
     return bool(GEMINI_API_KEY or OPENAI_API_KEY)
