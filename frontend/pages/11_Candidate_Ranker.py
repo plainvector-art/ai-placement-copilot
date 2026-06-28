@@ -71,16 +71,25 @@ button[data-testid="stSidebarCollapseButton"]:hover {
 </style>
 """, unsafe_allow_html=True)
 
-# API connection status in the sidebar
 with st.sidebar:
     st.page_link("app.py", label="Home Dashboard", icon="🏠")
     st.markdown("---")
-    st.markdown("### 🔌 API Integrations")
+    st.markdown("### 🔌 AI Connection")
     if is_ai_configured():
-        info = get_ai_provider_info()
-        st.success(f"⚡ LLM Active: {info['model'].upper()}")
+        st.markdown("""
+        <div style="background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.15);
+             border-radius: 8px; padding: 0.6rem; margin-bottom: 0.5rem; text-align: center;">
+            <span style="color:#22c55e; font-size:0.82rem; font-weight:600;">🟢 Gemini Connected</span>
+        </div>
+        """, unsafe_allow_html=True)
     else:
-        st.warning("⚠️ Running in Demo Mode\n(Configure GEMINI_API_KEY in .env)")
+        st.markdown("""
+        <div style="background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.15);
+             border-radius: 8px; padding: 0.6rem; margin-bottom: 0.5rem; text-align: center;">
+            <span style="color:#ef4444; font-size:0.82rem; font-weight:600;">🔴 No API Key (Demo)</span>
+        </div>
+        """, unsafe_allow_html=True)
+    st.page_link("pages/12_AI_Settings.py", label="🔑 Configure API Settings", use_container_width=True)
 
 st.markdown("""
 <div class="hero-section">

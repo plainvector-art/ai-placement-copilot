@@ -7,6 +7,7 @@ from frontend.components.styles import inject_css
 from frontend.components.charts import roadmap_timeline
 from backend.services.roadmap_gen import generate_roadmap
 from backend.services.skill_analyzer import analyze_skill_gap
+from backend.services.ai_client import has_api_key
 
 st.set_page_config(page_title="Learning Roadmap | Placement Copilot", page_icon="🗺️", layout="wide")
 inject_css()
@@ -20,6 +21,12 @@ st.markdown("""
 
 if not st.session_state.get("profile"):
     st.warning("⚠️ Please upload your resume first.")
+    st.stop()
+
+if not has_api_key():
+    st.info("💡 **This feature requires an active AI API key.**")
+    if st.button("🔑 Open AI Settings", use_container_width=True):
+        st.switch_page("pages/12_AI_Settings.py")
     st.stop()
 
 profile = st.session_state.profile

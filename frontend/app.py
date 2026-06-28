@@ -224,6 +224,27 @@ with st.sidebar:
 
     st.markdown("---")
 
+    # AI Connection Status inside sidebar
+    st.markdown('<div class="sidebar-section-label">AI Connection</div>', unsafe_allow_html=True)
+    from backend.services.ai_client import is_ai_configured
+    if is_ai_configured():
+        st.markdown("""
+        <div style="background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.15);
+             border-radius: 8px; padding: 0.6rem; margin-bottom: 0.5rem; text-align: center;">
+            <span style="color:#22c55e; font-size:0.82rem; font-weight:600;">🟢 Gemini Connected</span>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <div style="background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.15);
+             border-radius: 8px; padding: 0.6rem; margin-bottom: 0.5rem; text-align: center;">
+            <span style="color:#ef4444; font-size:0.82rem; font-weight:600;">🔴 No API Key (Demo)</span>
+        </div>
+        """, unsafe_allow_html=True)
+    st.page_link("pages/12_AI_Settings.py", label="🔑 AI API Settings", use_container_width=True)
+
+    st.markdown("---")
+
     # Navigation Info
     st.markdown("""
     <div style="font-size:0.75rem;color:#5c564c;line-height:1.8;">
@@ -235,6 +256,21 @@ with st.sidebar:
 
 
 # ── Main Content ───────────────────────────────────────────────────────────────
+
+# Homepage Banner warning if API keys are missing
+from backend.services.ai_client import has_api_key
+if not has_api_key():
+    if st.session_state.get("dismiss_api_warning") is not True:
+        col_warn_text, col_warn_btn1, col_warn_btn2 = st.columns([6, 2, 2])
+        with col_warn_text:
+            st.warning("⚠️ **AI features require a Gemini API key.** Running in Demo Mode with limited mock outputs.")
+        with col_warn_btn1:
+            if st.button("Configure API", use_container_width=True, key="banner_cfg_btn"):
+                st.switch_page("pages/12_AI_Settings.py")
+        with col_warn_btn2:
+            if st.button("Dismiss", use_container_width=True, key="banner_dismiss_btn"):
+                st.session_state.dismiss_api_warning = True
+                st.rerun()
 
 
 # Logo circular containers, main title, ornament and description

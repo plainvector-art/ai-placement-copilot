@@ -18,11 +18,54 @@ load_dotenv()
 
 # ── Config ────────────────────────────────────────────────────────────────────
 AI_PROVIDER = get_secret("AI_PROVIDER", "gemini")
-GEMINI_API_KEY = get_secret("GEMINI_API_KEY", "")
-OPENAI_API_KEY = get_secret("OPENAI_API_KEY", "")
 GEMINI_MODEL = get_secret("GEMINI_MODEL", "gemini-1.5-flash")
 OPENAI_MODEL = get_secret("OPENAI_MODEL", "gpt-4o-mini")
 CACHE_TTL = int(get_secret("CACHE_TTL_SECONDS", "3600"))
+
+# ── API Key Resolvers ─────────────────────────────────────────────────────────
+def get_gemini_api_key() -> str:
+    """Gets the Gemini API key, prioritizing user input in session state."""
+    try:
+        import streamlit as st
+        if "gemini_api_key" in st.session_state and st.session_state["gemini_api_key"]:
+            key = st.session_state["gemini_api_key"].strip()
+            if key and not key.startswith("your_"):
+                return key
+    except Exception:
+        pass
+    return get_secret("GEMINI_API_KEY", "")
+
+def get_openai_api_key() -> str:
+    """Gets the OpenAI API key, prioritizing user input in session state."""
+    try:
+        import streamlit as st
+        if "openai_api_key" in st.session_state and st.session_state["openai_api_key"]:
+            key = st.session_state["openai_api_key"].strip()
+            if key and not key.startswith("your_"):
+                return key
+    except Exception:
+        pass
+    return get_secret("OPENAI_API_KEY", "")
+
+def has_api_key() -> bool:
+    """Check if either Gemini or OpenAI API keys are configured."""
+    return bool(get_gemini_api_key() or get_openai_api_key())
+
+def verify_gemini_connection(api_key: str) -> tuple[bool, str]:
+    """Tests the Gemini API connection with a given key."""
+    if not api_key:
+        return False, "API Key is empty."
+    try:
+        import google.generativeai as genai
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel(GEMINI_MODEL)
+        response = model.generate_content("Ping", generation_config={"max_output_tokens": 5})
+        if response.text:
+            return True, "Connected successfully."
+        return False, "Received empty response from Gemini API."
+    except Exception as e:
+        logger.error(f"Gemini connection test failed: {e}")
+        return False, str(e)
 
 # ── Response cache (TTL-based) ────────────────────────────────────────────────
 _response_cache: TTLCache = TTLCache(maxsize=200, ttl=CACHE_TTL)
@@ -74,9 +117,10 @@ def _get_gemini_client():
     """Lazily initialize Gemini client."""
     try:
         import google.generativeai as genai
-        if not GEMINI_API_KEY:
-            raise ValueError("GEMINI_API_KEY not set in environment.")
-        genai.configure(api_key=GEMINI_API_KEY)
+        key = get_gemini_api_key()
+        if not key:
+            raise ValueError("GEMINI_API_KEY not set in environment or session state.")
+        genai.configure(api_key=key)
         return genai.GenerativeModel(GEMINI_MODEL)
     except ImportError:
         raise ImportError("google-generativeai not installed. Run: pip install google-generativeai")
@@ -112,7 +156,10 @@ def _call_openai(prompt: str, temperature: float = 0.7, max_tokens: int = 4096) 
     """Call OpenAI API with retry logic."""
     try:
         from openai import OpenAI
-        client = OpenAI(api_key=OPENAI_API_KEY)
+        key = get_openai_api_key()
+        if not key:
+            raise ValueError("OPENAI_API_KEY not set in environment or session state.")
+        client = OpenAI(api_key=key)
         response = client.chat.completions.create(
             model=OPENAI_MODEL,
             messages=[{"role": "user", "content": prompt}],
@@ -163,10 +210,12 @@ def generate_text(
     _check_rate_limit()
 
     try:
-        if AI_PROVIDER == "gemini" and GEMINI_API_KEY:
+        gemini_key = get_gemini_api_key()
+        openai_key = get_openai_api_key()
+        if AI_PROVIDER == "gemini" and gemini_key:
             result = _call_gemini(full_prompt, temperature, max_tokens)
             logger.info(f"Gemini API call successful ({len(result)} chars)")
-        elif OPENAI_API_KEY:
+        elif openai_key:
             result = _call_openai(full_prompt, temperature, max_tokens)
             logger.info(f"OpenAI API call successful ({len(result)} chars)")
         else:
@@ -176,7 +225,8 @@ def generate_text(
     except Exception as e:
         logger.error(f"AI API call failed: {e}")
         # Try fallback
-        if AI_PROVIDER == "gemini" and OPENAI_API_KEY:
+        openai_key = get_openai_api_key()
+        if AI_PROVIDER == "gemini" and openai_key:
             logger.info("Falling back to OpenAI...")
             result = _call_openai(full_prompt, temperature, max_tokens)
         else:
@@ -226,7 +276,7 @@ def _demo_response(prompt: str) -> str:
     """Returns structured demo data when no API key is configured."""
     return json.dumps({
         "status": "demo_mode",
-        "message": "Configure GEMINI_API_KEY in .env to enable AI features.",
+        "message": "Configure GEMINI_API_KEY in AI Settings to enable AI features.",
         "prompt_preview": prompt[:100],
     })
 
@@ -246,11 +296,14 @@ def embed_text(texts: List[str]) -> List[List[float]]:
 
     _check_rate_limit()
 
+    gemini_key = get_gemini_api_key()
+    openai_key = get_openai_api_key()
+
     # Try Gemini if configured as primary
-    if AI_PROVIDER == "gemini" and GEMINI_API_KEY:
+    if AI_PROVIDER == "gemini" and gemini_key:
         try:
             import google.generativeai as genai
-            genai.configure(api_key=GEMINI_API_KEY)
+            genai.configure(api_key=gemini_key)
             # models/text-embedding-004 is the standard Gemini embedding model
             result = genai.embed_content(
                 model="models/text-embedding-004",
@@ -263,11 +316,11 @@ def embed_text(texts: List[str]) -> List[List[float]]:
                 raise ValueError("Embedding key not found in Gemini response.")
         except Exception as e:
             logger.warning(f"Gemini embedding failed: {e}. Trying OpenAI fallback if available...")
-            if OPENAI_API_KEY:
+            if openai_key:
                 return _embed_openai(texts)
             raise
     # Otherwise try OpenAI
-    elif OPENAI_API_KEY:
+    elif openai_key:
         try:
             return _embed_openai(texts)
         except Exception as e:
@@ -280,7 +333,7 @@ def embed_text(texts: List[str]) -> List[List[float]]:
 def _embed_openai(texts: List[str]) -> List[List[float]]:
     """Helper to call OpenAI embedding API."""
     from openai import OpenAI
-    client = OpenAI(api_key=OPENAI_API_KEY)
+    client = OpenAI(api_key=get_openai_api_key())
     response = client.embeddings.create(
         input=texts,
         model="text-embedding-3-small"
@@ -290,7 +343,7 @@ def _embed_openai(texts: List[str]) -> List[List[float]]:
 
 def is_ai_configured() -> bool:
     """Check if any AI provider is properly configured."""
-    return bool(GEMINI_API_KEY or OPENAI_API_KEY)
+    return has_api_key()
 
 
 def get_ai_provider_info() -> Dict:

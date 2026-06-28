@@ -5,6 +5,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 import streamlit as st
 from frontend.components.styles import inject_css
 from backend.services.project_recommender import recommend_projects
+from backend.services.ai_client import has_api_key
 
 st.set_page_config(page_title="Projects | Placement Copilot", page_icon="🚀", layout="wide")
 inject_css()
@@ -18,6 +19,12 @@ st.markdown("""
 
 if not st.session_state.get("profile"):
     st.warning("⚠️ Please upload your resume first.")
+    st.stop()
+
+if not has_api_key():
+    st.info("💡 **This feature requires an active AI API key.**")
+    if st.button("🔑 Open AI Settings", use_container_width=True):
+        st.switch_page("pages/12_AI_Settings.py")
     st.stop()
 
 profile = st.session_state.profile

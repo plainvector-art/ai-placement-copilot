@@ -6,6 +6,7 @@ import streamlit as st
 from frontend.components.styles import inject_css
 from frontend.components.charts import jd_match_gauge
 from backend.services.jd_matcher import calculate_jd_match
+from backend.services.ai_client import has_api_key
 
 st.set_page_config(page_title="JD Matcher | Placement Copilot", page_icon="📋", layout="wide")
 inject_css()
@@ -19,6 +20,12 @@ st.markdown("""
 
 if not st.session_state.get("profile"):
     st.warning("⚠️ Please upload your resume first.")
+    st.stop()
+
+if not has_api_key():
+    st.info("💡 **This feature requires an active AI API key.**")
+    if st.button("🔑 Open AI Settings", use_container_width=True):
+        st.switch_page("pages/12_AI_Settings.py")
     st.stop()
 
 profile = st.session_state.profile
