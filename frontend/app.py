@@ -236,19 +236,6 @@ with st.sidebar:
 
 # ── Main Content ───────────────────────────────────────────────────────────────
 
-# Floating Deploy Button in top-right
-st.markdown("""
-<div style="position: absolute; top: 1.25rem; right: 2rem; z-index: 999;">
-    <a href="#" style="text-decoration: none;">
-        <div style="border: 1px solid rgba(212, 175, 55, 0.25); background: rgba(18,20,16,0.65); 
-                    color: #d4af37; font-family: 'Lora', serif; font-size: 0.8rem; 
-                    padding: 0.4rem 1.2rem; border-radius: 6px; font-weight: 500;
-                    letter-spacing: 0.05em; transition: all 0.2s;">
-            Deploy
-        </div>
-    </a>
-</div>
-""", unsafe_allow_html=True)
 
 # Logo circular containers, main title, ornament and description
 st.markdown("""
