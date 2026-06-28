@@ -53,7 +53,6 @@ def extract_text_from_docx(file_path: str) -> str:
         from docx import Document
         doc = Document(file_path)
         paragraphs = [para.text for para in doc.paragraphs if para.text.strip()]
-        # Also extract table content
         for table in doc.tables:
             for row in table.rows:
                 for cell in row.cells:
@@ -67,22 +66,51 @@ def extract_text_from_docx(file_path: str) -> str:
         raise
 
 
+def extract_strings_from_binary(file_path: str) -> str:
+    """Extract printable strings from a binary file (e.g. legacy .doc)."""
+    try:
+        with open(file_path, 'rb') as f:
+            data = f.read()
+        printable_chars = bytearray()
+        for b in data:
+            if 32 <= b <= 126 or b in (10, 13, 9):
+                printable_chars.append(b)
+            else:
+                printable_chars.append(32)
+        text = printable_chars.decode('ascii', errors='ignore')
+        text = re.sub(r'\s+', ' ', text)
+        return text
+    except Exception as e:
+        logger.error(f"Binary text extraction fallback failed: {e}")
+        return ""
+
+
 def extract_text(file_path: str) -> Tuple[str, str]:
     """
     Auto-detect file type and extract text.
-
     Returns:
         (extracted_text, file_type)
     """
     path = Path(file_path)
     ext = path.suffix.lower()
 
-    if ext == ".pdf":
-        return extract_text_from_pdf(file_path), "pdf"
-    elif ext in (".docx", ".doc"):
-        return extract_text_from_docx(file_path), "docx"
-    else:
-        raise ValueError(f"Unsupported file type: {ext}. Only PDF and DOCX are supported.")
+    try:
+        if ext == ".pdf":
+            return extract_text_from_pdf(file_path), "pdf"
+        elif ext in (".docx", ".doc"):
+            try:
+                return extract_text_from_docx(file_path), "docx"
+            except Exception as docx_err:
+                logger.warning(f"DOCX parser failed for {file_path}: {docx_err}. Trying binary reader fallback...")
+                return extract_strings_from_binary(file_path), "doc_binary"
+        else:
+            raise ValueError(f"Unsupported file type: {ext}")
+    except Exception as e:
+        logger.warning(f"Standard extraction failed: {e}. Attempting binary stream fallback extraction...")
+        fallback_text = extract_strings_from_binary(file_path)
+        if len(fallback_text.strip()) > 50:
+            return fallback_text, "binary_fallback"
+        raise ValueError(f"Failed to extract text from {file_path}: {e}")
 
 
 # ── NLP Extraction ────────────────────────────────────────────────────────────
@@ -94,10 +122,19 @@ def extract_email(text: str) -> Optional[str]:
 
 
 def extract_phone(text: str) -> Optional[str]:
-    pattern = r'(?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}'
-    matches = re.findall(pattern, text)
-    # Filter out false positives (zip codes, etc.)
-    for match in matches:
+    """Extract candidate phone numbers, supporting Indian (+91, 91, 0) and US formats."""
+    # Indian: starts with 6-9, has 10 digits, optional prefix
+    indian_pattern = r'(?:\+?91|0)?[-\s]?[6-9]\d{9}\b'
+    us_pattern = r'(?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}'
+    
+    # Try Indian pattern first
+    indian_matches = re.findall(indian_pattern, text)
+    if indian_matches:
+        return indian_matches[0].strip()
+        
+    # Try US pattern fallback
+    us_matches = re.findall(us_pattern, text)
+    for match in us_matches:
         cleaned = re.sub(r'\D', '', match)
         if len(cleaned) >= 10:
             return match.strip()
@@ -119,10 +156,8 @@ def extract_github(text: str) -> Optional[str]:
 def extract_name(text: str) -> Optional[str]:
     """Extract candidate name from the first non-empty lines."""
     lines = [l.strip() for l in text.split('\n') if l.strip()]
-    # Name is usually in the first 3 lines, before contact info
     email = extract_email(text) or ""
     for line in lines[:5]:
-        # Skip lines that look like headers/contact info
         if (email and email.lower() in line.lower()):
             continue
         if re.search(r'resume|curriculum|vitae|cv\b', line, re.IGNORECASE):
@@ -144,8 +179,6 @@ def extract_section(text: str, section_keywords: List[str], next_sections: List[
         return ""
 
     start_idx = start_match.end()
-
-    # Find next section
     end_idx = len(text)
     next_match = re.search(next_pattern, text[start_idx:])
     if next_match:
@@ -156,37 +189,26 @@ def extract_section(text: str, section_keywords: List[str], next_sections: List[
 
 def extract_skills(text: str) -> List[str]:
     """Extract skills from resume text using common skill keywords."""
-    # Known tech skills database
     tech_skills = {
-        # Programming Languages
         "python", "java", "javascript", "typescript", "c++", "c#", "c", "go", "golang",
         "rust", "ruby", "php", "swift", "kotlin", "scala", "r", "matlab", "bash",
-        # Data & ML
         "machine learning", "deep learning", "tensorflow", "pytorch", "keras",
         "scikit-learn", "pandas", "numpy", "scipy", "matplotlib", "seaborn",
         "plotly", "opencv", "nlp", "computer vision", "transformers", "bert",
         "llm", "langchain", "hugging face", "xgboost", "lightgbm", "catboost",
-        # Web & Backend
         "react", "next.js", "vue", "angular", "node.js", "express", "django",
         "flask", "fastapi", "spring boot", "rest api", "graphql", "websocket",
         "html", "css", "tailwind", "bootstrap",
-        # Databases
         "sql", "mysql", "postgresql", "mongodb", "redis", "elasticsearch",
         "cassandra", "dynamodb", "sqlite", "oracle", "neo4j", "pinecone",
-        # Cloud & DevOps
         "aws", "azure", "gcp", "google cloud", "docker", "kubernetes", "terraform",
         "ansible", "jenkins", "gitlab ci", "github actions", "ci/cd", "linux",
         "bash", "devops", "mlops",
-        # Data & Analytics
         "tableau", "power bi", "looker", "excel", "google analytics",
         "airflow", "spark", "hadoop", "kafka", "dbt", "snowflake", "bigquery",
-        # Tools
         "git", "jira", "confluence", "figma", "postman", "jupyter", "vscode",
-        # Soft skills
         "agile", "scrum", "kanban", "product management", "team leadership",
-        # Security
         "cybersecurity", "penetration testing", "siem", "network security",
-        # Embedded
         "arduino", "raspberry pi", "esp32", "rtos", "freertos", "embedded c",
         "verilog", "vhdl", "fpga", "i2c", "spi", "uart", "can bus",
     }
@@ -197,11 +219,6 @@ def extract_skills(text: str) -> List[str]:
     for skill in tech_skills:
         if skill in text_lower:
             found_skills.add(skill.title() if len(skill) > 3 else skill.upper())
-
-    # Also extract capitalized multi-word phrases that look like skills
-    skill_patterns = re.findall(
-        r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})\b', text
-    )
 
     return sorted(list(found_skills))
 
@@ -215,7 +232,6 @@ def extract_education(text: str) -> List[Dict]:
         "diploma", "certification", "certificate",
     ]
 
-    lines = text.split('\n')
     edu_section = extract_section(
         text,
         ["education", "academic background", "qualifications"],
@@ -254,7 +270,6 @@ def extract_experience(text: str) -> List[Dict]:
     if not exp_section:
         return experiences
 
-    # Split by date patterns (commonly start of new experience)
     date_pattern = r'(?:\d{4}|\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w*\s+\d{4})'
     blocks = re.split(r'\n(?=\S)', exp_section)
 
@@ -269,7 +284,7 @@ def extract_experience(text: str) -> List[Dict]:
                 "role": "",
             })
 
-    return experiences[:10]  # Cap at 10 entries
+    return experiences[:10]
 
 
 def extract_projects(text: str) -> List[Dict]:
@@ -284,7 +299,6 @@ def extract_projects(text: str) -> List[Dict]:
     if not proj_section:
         return projects
 
-    # Projects usually start with a title (capitalized or bullet-pointed)
     blocks = re.split(r'\n(?=[\•\-\*]|\d+\.|\s{0,2}[A-Z])', proj_section)
 
     for block in blocks:
@@ -326,11 +340,79 @@ def _extract_year(text: str) -> Optional[str]:
 
 
 def _extract_gpa(text: str) -> Optional[str]:
-    gpa = re.findall(r'\b\d\.\d{1,2}\b', text)
-    for g in gpa:
-        if 0.0 <= float(g) <= 4.0:
-            return g
+    """Extract CGPA (10.0 scale, 4.0 scale) and percentages (%)."""
+    # 1. Match percentages (e.g. 85.5% or 78 %)
+    pct_matches = re.findall(r'\b(\d{2}(?:\.\d{1,2})?)\s*%', text)
+    if pct_matches:
+        return f"{pct_matches[0]}%"
+        
+    # 2. Match CGPA out of 10 explicitly (e.g. 8.5/10, 9.2 CGPA)
+    out_of_10 = re.findall(r'\b(\d{1,2}\.\d{1,2})\s*(?:/|out of)\s*10\b', text, re.IGNORECASE)
+    if out_of_10:
+        return f"{out_of_10[0]}/10"
+        
+    # 3. Match CGPA keyword pointer (e.g. CGPA: 8.5)
+    cgpa_keyword = re.findall(r'(?:cgpa|gpa|points|pointer)\s*(?:of|:|-)?\s*(\d{1,2}\.\d{1,2})', text, re.IGNORECASE)
+    if cgpa_keyword:
+        val = float(cgpa_keyword[0])
+        if 4.0 < val <= 10.0:
+            return f"{val}/10"
+        elif val <= 4.0:
+            return f"{val}/4"
+
+    # 4. Out of 4.0 explicitly
+    out_of_4 = re.findall(r'\b(\d\.\d{1,2})\s*/\s*4\b', text)
+    if out_of_4:
+        return f"{out_of_4[0]}/4"
+        
+    # 5. Fallback float match
+    gpa_matches = re.findall(r'\b(\d\.\d{1,2})\b', text)
+    for g in gpa_matches:
+        val = float(g)
+        if 4.0 < val <= 10.0:
+            return f"{val}/10"
+        elif 0.0 <= val <= 4.0:
+            return f"{val}/4"
+            
     return None
+
+
+def _extract_backlogs(text: str) -> int:
+    """Detect number of active or history backlogs/KTs (Kept Terms) in resume text."""
+    no_backlog_pattern = r'\b(?:no|zero|0|nil|nil active)\s*(?:active\s*)?(?:backlogs?|kt|active kt|kept\s*terms?)\b'
+    if re.search(no_backlog_pattern, text, re.IGNORECASE):
+        return 0
+        
+    backlog_count_pattern = r'\b(\d+)\s*(?:active\s*)?(?:backlogs?|kt|kept terms?)\b'
+    matches = re.findall(backlog_count_pattern, text, re.IGNORECASE)
+    if matches:
+        return int(matches[0])
+        
+    if re.search(r'\b(?:backlogs?|kt|kept terms?)\b', text, re.IGNORECASE):
+        return 1
+        
+    return 0
+
+
+def _detect_indian_education_metadata(text: str) -> dict:
+    """Detects Indian education context such as boards and universities (AKTU, VTU, CBSE, etc.)."""
+    text_lower = text.lower()
+    boards = []
+    if "cbse" in text_lower:
+        boards.append("CBSE")
+    if "isc" in text_lower or "icse" in text_lower:
+        boards.append("ICSE/ISC")
+        
+    universities = []
+    for uni in ["aktu", "vtu", "jntu", "anna university", "delhi university", "mumbai university", "pune university"]:
+        if uni in text_lower:
+            universities.append(uni.upper())
+            
+    return {
+        "boards": boards,
+        "universities": universities,
+        "is_indian_context": bool(boards or universities or "india" in text_lower)
+    }
 
 
 # ── Main Parser ────────────────────────────────────────────────────────────────
@@ -338,9 +420,6 @@ def _extract_gpa(text: str) -> Optional[str]:
 def parse_resume(file_path: str) -> Dict:
     """
     Full resume parsing pipeline.
-
-    Returns:
-        Structured candidate profile dict
     """
     logger.info(f"Parsing resume: {file_path}")
 
@@ -367,6 +446,8 @@ def parse_resume(file_path: str) -> Dict:
         "file_type": file_type,
         "total_words": len(raw_text.split()),
         "parsing_confidence": _calculate_confidence(raw_text),
+        "backlogs": _extract_backlogs(raw_text),
+        "indian_education": _detect_indian_education_metadata(raw_text),
     }
 
     logger.info(
@@ -380,7 +461,6 @@ def parse_resume(file_path: str) -> Dict:
 
 
 def _extract_location(text: str) -> Optional[str]:
-    """Simple location extraction."""
     location_pattern = r'\b([A-Z][a-z]+(?:[\s,]+[A-Z][a-zA-Z]+)*,\s*(?:[A-Z]{2}|[A-Za-z]+))\b'
     matches = re.findall(location_pattern, text)
     if matches:
@@ -389,7 +469,6 @@ def _extract_location(text: str) -> Optional[str]:
 
 
 def _extract_summary(text: str) -> str:
-    """Extract professional summary section."""
     summary = extract_section(
         text,
         ["summary", "objective", "profile", "about", "professional summary"],
@@ -399,7 +478,6 @@ def _extract_summary(text: str) -> str:
 
 
 def _extract_achievements(text: str) -> List[str]:
-    """Extract achievements/accomplishments."""
     ach_section = extract_section(
         text,
         ["achievements", "accomplishments", "awards", "honors"],
@@ -418,7 +496,6 @@ def _extract_achievements(text: str) -> List[str]:
 
 
 def _calculate_confidence(text: str) -> str:
-    """Estimate parsing confidence based on content quality."""
     score = 0
     if extract_email(text):
         score += 20

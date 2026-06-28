@@ -102,7 +102,7 @@ class ChatHistory(Base):
     session_id = Column(String(64), index=True)
     role = Column(String(20))                # user | assistant
     content = Column(Text)
-    metadata = Column(JSON)
+    meta_info = Column("metadata", JSON)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 

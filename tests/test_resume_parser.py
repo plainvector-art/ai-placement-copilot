@@ -64,13 +64,13 @@ class TestExtractSkills:
 
 class TestExtractGPA:
     def test_valid_gpa(self):
-        assert _extract_gpa("GPA: 3.8/4.0") == "3.8"
+        assert _extract_gpa("GPA: 3.8/4.0") == "3.8/4"
 
     def test_no_gpa(self):
         assert _extract_gpa("No GPA here") is None
 
     def test_cgpa(self):
-        assert _extract_gpa("CGPA: 9.2/10") is None  # > 4.0 not extracted
+        assert _extract_gpa("CGPA: 9.2/10") == "9.2/10"
 
 
 class TestExtractYear:

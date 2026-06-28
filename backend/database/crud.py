@@ -151,7 +151,7 @@ def add_chat_message(
         session_id=session_id,
         role=role,
         content=content,
-        metadata=metadata or {},
+        meta_info=metadata or {},
     )
     db.add(msg)
     db.commit()

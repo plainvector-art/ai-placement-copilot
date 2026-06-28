@@ -13,7 +13,14 @@ def save_uploaded_file(file_content: bytes, filename: str) -> str:
     Returns:
         Absolute path to saved file
     """
-    ext = Path(filename).suffix
+    # Security check: file size limit (10MB)
+    if len(file_content) > 10 * 1024 * 1024:
+        raise ValueError("File size exceeds the maximum limit of 10MB.")
+
+    ext = Path(filename).suffix.lower()
+    if ext not in (".pdf", ".docx", ".doc"):
+        raise ValueError(f"Unsupported file format: {ext}. Only PDF, DOCX, and DOC are supported.")
+
     unique_name = f"{uuid.uuid4().hex}{ext}"
     temp_dir = tempfile.gettempdir()
     file_path = os.path.join(temp_dir, unique_name)

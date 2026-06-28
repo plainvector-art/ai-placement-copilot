@@ -8,7 +8,7 @@ from datetime import datetime
 from loguru import logger
 
 from backend.services.ai_client import generate_text, generate_json
-
+from backend.services.prompts import PROMPTS
 
 INTERVIEWER_PERSONA = """You are Alex, a senior technical interviewer at a top tech company. 
 You conduct professional, encouraging, yet rigorous interviews. You:
@@ -29,24 +29,16 @@ def start_interview(
 ) -> Dict:
     """
     Initialize a new mock interview session.
-
-    Returns:
-        Initial greeting message and session config
     """
-    name = profile.get("name", "there")
+    name = profile.get("name", "Candidate")
     skills = ", ".join(profile.get("skills", [])[:5])
 
-    prompt = f"""{INTERVIEWER_PERSONA}
-
-You are starting a mock interview with {name}, who is applying for {target_role}.
-Their key skills include: {skills}
-
-Write a warm, professional opening greeting (2-3 sentences) that:
-1. Introduces yourself as Alex
-2. Sets the stage for the interview
-3. Asks your first HR/warm-up question
-
-Keep it natural and conversational."""
+    prompt = PROMPTS["mock_interview_start"].format(
+        interviewer_persona=INTERVIEWER_PERSONA,
+        name=name,
+        target_role=target_role,
+        skills=skills
+    )
 
     greeting = generate_text(prompt, temperature=0.8, max_tokens=300)
 
@@ -70,14 +62,6 @@ def process_response(
 ) -> Dict:
     """
     Process user's interview response and generate AI follow-up.
-
-    Args:
-        session: Current interview session dict
-        user_response: Candidate's response text
-        profile: Candidate profile
-
-    Returns:
-        Updated session with AI response
     """
     messages = session.get("messages", [])
     question_count = session.get("question_count", 0)
@@ -107,32 +91,21 @@ def process_response(
         return session
 
     # Build conversation history for context
-    conversation_text = _format_conversation(messages[-8:])  # Last 8 messages
+    conversation_text = _format_conversation(messages[-8:])
 
     # Determine what type of question to ask next
     question_type = _determine_next_question_type(question_count)
 
-    prompt = f"""{INTERVIEWER_PERSONA}
-
-Interview Context:
-- Candidate: {profile.get('name', 'Candidate')}
-- Target Role: {target_role}
-- Key Skills: {', '.join(profile.get('skills', [])[:6])}
-- Projects: {', '.join([p.get('title', '') for p in profile.get('projects', [])[:2]])}
-- Question Number: {question_count} of 15
-
-Recent Conversation:
-{conversation_text}
-
-The candidate just responded. Now:
-1. Briefly acknowledge their response (1 sentence, natural and encouraging)
-2. Ask a {question_type} question
-
-IMPORTANT: 
-- If their answer was weak/incomplete, ask a follow-up to probe deeper
-- If their answer was strong, pivot to a new challenge area
-- Keep your total response to 3-4 sentences maximum
-- Be natural and conversational"""
+    prompt = PROMPTS["mock_interview_process"].format(
+        interviewer_persona=INTERVIEWER_PERSONA,
+        name=profile.get('name', 'Candidate'),
+        target_role=target_role,
+        skills=', '.join(profile.get('skills', [])[:6]),
+        projects=', '.join([p.get('title', '') for p in profile.get('projects', [])[:2]]),
+        question_count=question_count,
+        conversation_text=conversation_text,
+        question_type=question_type
+    )
 
     ai_response = generate_text(prompt, temperature=0.75, max_tokens=400)
 
@@ -153,13 +126,6 @@ IMPORTANT:
 def evaluate_interview(session: Dict, profile: Dict) -> Dict:
     """
     Evaluate completed interview and generate performance report.
-
-    Args:
-        session: Completed interview session
-        profile: Candidate profile
-
-    Returns:
-        Detailed performance evaluation report
     """
     logger.info("Evaluating mock interview performance...")
 
@@ -167,37 +133,28 @@ def evaluate_interview(session: Dict, profile: Dict) -> Dict:
     target_role = session.get("target_role", "Software Engineer")
     total_questions = session.get("question_count", 0)
 
-    prompt = f"""{EVALUATION_SYSTEM}
+    prompt = PROMPTS["mock_interview_evaluate"].format(
+        evaluation_system=EVALUATION_SYSTEM,
+        target_role=target_role,
+        skills=', '.join(profile.get('skills', [])[:8]),
+        total_questions=total_questions,
+        conversation_text=conversation_text
+    )
 
-Interview Details:
-- Target Role: {target_role}
-- Candidate Skills: {', '.join(profile.get('skills', [])[:8])}
-- Total Questions: {total_questions}
+    schema = {
+        "overall_score": int,
+        "scores": dict,
+        "strengths": list,
+        "areas_for_improvement": list,
+        "standout_moments": list,
+        "overall_feedback": str,
+        "hiring_recommendation": str,
+        "next_steps": list
+    }
 
-Full Interview Transcript:
-{conversation_text}
+    result = generate_json(prompt, temperature=0.3, max_tokens=2000, schema=schema)
 
-Evaluate the candidate comprehensively. Return JSON:
-{{
-  "overall_score": <0-100>,
-  "scores": {{
-    "communication": {{"score": <0-100>, "feedback": "..."}},
-    "technical_knowledge": {{"score": <0-100>, "feedback": "..."}},
-    "problem_solving": {{"score": <0-100>, "feedback": "..."}},
-    "confidence": {{"score": <0-100>, "feedback": "..."}},
-    "cultural_fit": {{"score": <0-100>, "feedback": "..."}}
-  }},
-  "strengths": ["...", "...", "..."],
-  "areas_for_improvement": ["...", "...", "..."],
-  "standout_moments": ["..."],
-  "overall_feedback": "2-3 sentence executive summary",
-  "hiring_recommendation": "Strong Yes / Yes / Maybe / No",
-  "next_steps": ["...", "...", "..."]
-}}"""
-
-    result = generate_json(prompt, temperature=0.3, max_tokens=2000)
-
-    if not result:
+    if not result or not isinstance(result, dict) or "overall_score" not in result:
         result = _fallback_evaluation(session)
 
     result["session_duration"] = _calculate_duration(session)
@@ -231,13 +188,10 @@ def _determine_next_question_type(question_num: int) -> str:
 
 def _generate_closing(messages: List[Dict], target_role: str) -> str:
     """Generate a professional interview closing."""
-    prompt = f"""{INTERVIEWER_PERSONA}
-
-This mock interview for a {target_role} position is now complete (15 questions answered).
-Write a warm, professional closing statement (3-4 sentences) that:
-1. Thanks the candidate for their time
-2. Notes one genuinely positive aspect you observed
-3. Tells them to click 'View Report' for detailed feedback"""
+    prompt = PROMPTS["mock_interview_closing"].format(
+        interviewer_persona=INTERVIEWER_PERSONA,
+        target_role=target_role
+    )
 
     return generate_text(prompt, temperature=0.7, max_tokens=200)
 
@@ -246,7 +200,6 @@ def _calculate_duration(session: Dict) -> str:
     """Calculate approximate interview duration."""
     messages = session.get("messages", [])
     if len(messages) >= 2:
-        # Estimate ~2 min per question
         questions = session.get("question_count", 5)
         return f"~{questions * 2} minutes"
     return "~10 minutes"

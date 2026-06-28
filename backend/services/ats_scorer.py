@@ -66,6 +66,15 @@ def score_contact_info(profile: Dict) -> Tuple[int, List[str]]:
     return min(score, 100), suggestions
 
 
+ROLE_SKILLS = {
+    "software engineer": ["python", "java", "c++", "javascript", "typescript", "git", "sql"],
+    "data scientist": ["python", "r", "machine learning", "sql", "pandas", "numpy", "statistics"],
+    "devops engineer": ["docker", "kubernetes", "aws", "terraform", "ansible", "linux", "ci/cd"],
+    "ai engineer": ["python", "pytorch", "tensorflow", "deep learning", "nlp", "llm", "transformers"],
+    "ml engineer": ["python", "pytorch", "tensorflow", "machine learning", "deep learning", "mlops"]
+}
+
+
 def score_skills(profile: Dict, target_role: Optional[str] = None) -> Tuple[int, List[str]]:
     """Score skills section (0-100)."""
     skills = profile.get("skills", [])
@@ -85,8 +94,31 @@ def score_skills(profile: Dict, target_role: Optional[str] = None) -> Tuple[int,
     else:
         suggestions.append("Add more relevant technical skills (aim for 10-15 skills)")
 
-    # Check for categorization (inferred from having diverse skills)
-    score += 30  # Presence bonus
+    # Check for categorization / role fit
+    presence_bonus = 30
+    if target_role:
+        role_lower = target_role.lower()
+        matched_role = None
+        for key in ROLE_SKILLS:
+            if key in role_lower:
+                matched_role = key
+                break
+        
+        if matched_role:
+            req = ROLE_SKILLS[matched_role]
+            profile_skills_lower = {s.lower() for s in skills}
+            matches = [s for s in req if s in profile_skills_lower]
+            match_pct = len(matches) / len(req)
+            
+            if match_pct < 0.3:
+                presence_bonus = 15
+                suggestions.append(f"Add key skills aligned with {target_role} role (e.g. {', '.join(req[:3])})")
+            elif match_pct < 0.6:
+                presence_bonus = 22
+                missing = [s for s in req if s not in profile_skills_lower]
+                suggestions.append(f"Add more core {target_role} skills: {', '.join(missing[:3])}")
+    
+    score += presence_bonus
 
     # Quantity bonus
     if len(skills) >= 15:

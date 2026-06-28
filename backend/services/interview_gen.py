@@ -7,11 +7,7 @@ from typing import Dict, List, Optional
 from loguru import logger
 
 from backend.services.ai_client import generate_json, generate_text
-
-
-SYSTEM_CONTEXT = """You are an expert technical recruiter and interview coach with 15+ years of experience 
-at top tech companies. You create highly targeted, relevant interview questions based on a candidate's 
-actual resume, projects, and target role."""
+from backend.services.prompts import PROMPTS
 
 
 def generate_interview_questions(
@@ -21,66 +17,40 @@ def generate_interview_questions(
 ) -> Dict:
     """
     Generate comprehensive interview question set using AI.
-
-    Args:
-        profile: Parsed candidate profile
-        target_role: Target job role
-        difficulty: Question difficulty (Easy/Medium/Hard/Mixed)
-
-    Returns:
-        Structured question bank with 40 questions across 4 categories
     """
     logger.info(f"Generating interview questions for {target_role}")
 
-    name = profile.get("name", "the candidate")
+    name = profile.get("name", "Candidate")
     skills = profile.get("skills", [])[:15]
     projects = profile.get("projects", [])[:3]
-    experience = profile.get("experience", [])[:2]
     certs = profile.get("certifications", [])[:3]
 
-    # Build context
     project_summary = "\n".join([
         f"- {p.get('title', 'Project')}: {p.get('description', '')[:100]}"
         for p in projects
     ])
     skills_str = ", ".join(skills[:12])
 
-    prompt = f"""Generate a comprehensive interview question set for a {target_role} candidate.
+    prompt = PROMPTS["interview_questions"].format(
+        target_role=target_role,
+        name=name,
+        skills_str=skills_str,
+        project_summary=project_summary or "Not specified",
+        certs=', '.join(certs) or "None",
+        difficulty=difficulty
+    )
 
-CANDIDATE PROFILE:
-- Name: {name}
-- Key Skills: {skills_str}
-- Projects: {project_summary or "Not specified"}
-- Certifications: {', '.join(certs) or "None"}
-- Difficulty Level: {difficulty}
+    schema = {
+        "hr_questions": list,
+        "technical_questions": list,
+        "project_questions": list,
+        "behavioral_questions": list
+    }
 
-Generate exactly this structure in JSON:
-{{
-  "hr_questions": [
-    {{"id": 1, "question": "...", "category": "HR", "difficulty": "Easy", "tip": "..."}}
-    // 10 HR/behavioral questions about background, motivation, teamwork
-  ],
-  "technical_questions": [
-    {{"id": 1, "question": "...", "category": "Technical", "difficulty": "Medium/Hard", "tip": "...", "expected_topics": ["..."]}}
-    // 15 technical questions specific to {target_role} skills and technologies
-  ],
-  "project_questions": [
-    {{"id": 1, "question": "...", "category": "Project", "difficulty": "Medium", "tip": "..."}}
-    // 10 deep-dive questions about the candidate's specific projects
-  ],
-  "behavioral_questions": [
-    {{"id": 1, "question": "...", "category": "Behavioral", "difficulty": "Medium", "tip": "...", "framework": "STAR"}}
-    // 5 behavioral questions using STAR format
-  ]
-}}
+    result = generate_json(prompt, temperature=0.8, max_tokens=5000, schema=schema)
 
-Make questions highly specific to the candidate's background. Reference actual skills and projects.
-Technical questions should test real knowledge needed for {target_role}."""
-
-    result = generate_json(prompt, temperature=0.8, max_tokens=5000)
-
-    if not result or "error" in str(result).lower():
-        logger.warning("AI question generation returned empty result, using fallback")
+    if not result or "error" in str(result).lower() or not isinstance(result, dict) or "hr_questions" not in result:
+        logger.warning("AI question generation returned empty or malformed result, using fallback")
         return _generate_fallback_questions(target_role, skills)
 
     # Enrich with metadata
@@ -116,7 +86,13 @@ Previous questions asked: {prev or 'None'}
 
 Return JSON: {{"question": "...", "category": "{category}", "tip": "..."}}"""
 
-    return generate_json(prompt, temperature=0.9)
+    schema = {
+        "question": str,
+        "category": str,
+        "tip": str
+    }
+
+    return generate_json(prompt, temperature=0.9, schema=schema)
 
 
 def _generate_fallback_questions(target_role: str, skills: List[str]) -> Dict:

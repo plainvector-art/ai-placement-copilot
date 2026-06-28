@@ -6,7 +6,7 @@ from typing import Dict, List, Optional
 from loguru import logger
 
 from backend.services.ai_client import generate_json
-
+from backend.services.prompts import PROMPTS
 
 ROADMAP_SYSTEM = """You are an expert career development coach and curriculum designer 
 who creates highly practical, week-by-week learning roadmaps for tech professionals."""
@@ -20,115 +20,36 @@ def generate_roadmap(
 ) -> Dict:
     """
     Generate a personalized learning roadmap.
-
-    Args:
-        profile: Candidate profile
-        target_role: Target job role
-        skill_gap_data: Skill gap analysis result
-        available_hours_per_week: Study hours per week
-
-    Returns:
-        Structured 6-month roadmap with phases
     """
     logger.info(f"Generating learning roadmap for {target_role}")
 
-    name = profile.get("name", "the candidate")
+    name = profile.get("name", "Candidate")
     existing_skills = profile.get("skills", [])[:10]
     missing_skills = skill_gap_data.get("missing_skills", [])[:10]
     priority_skills = [s["skill"] for s in skill_gap_data.get("priority_skills", [])[:5]]
 
-    prompt = f"""{ROADMAP_SYSTEM}
+    prompt = PROMPTS["learning_roadmap"].format(
+        roadmap_system=ROADMAP_SYSTEM,
+        name=name,
+        target_role=target_role,
+        existing_skills=', '.join(existing_skills),
+        missing_skills=', '.join(missing_skills),
+        priority_skills=', '.join(priority_skills),
+        available_hours=available_hours_per_week
+    )
 
-Create a comprehensive personalized learning roadmap for {name} targeting the {target_role} role.
+    schema = {
+        "summary": dict,
+        "phases": dict,
+        "key_milestones": list,
+        "top_resources": list,
+        "success_metrics": list
+    }
 
-CURRENT STATE:
-- Existing Skills: {', '.join(existing_skills)}
-- Missing Required Skills: {', '.join(missing_skills)}
-- Priority Skills to Learn: {', '.join(priority_skills)}
-- Available Study Time: {available_hours_per_week} hours/week
+    result = generate_json(prompt, temperature=0.6, max_tokens=6000, schema=schema)
 
-Create a practical, actionable roadmap in this exact JSON structure:
-{{
-  "summary": {{
-    "target_role": "{target_role}",
-    "total_duration": "6 months",
-    "total_hours": <number>,
-    "key_focus_areas": ["...", "...", "..."],
-    "expected_outcome": "..."
-  }},
-  "phases": {{
-    "phase_1": {{
-      "name": "Foundation Building",
-      "duration": "30 days",
-      "weeks": 4,
-      "goal": "...",
-      "weeks_breakdown": [
-        {{
-          "week": 1,
-          "focus": "...",
-          "topics": ["...", "..."],
-          "project": "...",
-          "hours": <number>,
-          "resources": [
-            {{"title": "...", "type": "Course/Book/Video/Practice", "url": "...", "free": true/false}}
-          ],
-          "milestone": "..."
-        }}
-      ],
-      "phase_project": "...",
-      "skills_gained": ["...", "..."],
-      "milestone": "..."
-    }},
-    "phase_2": {{
-      "name": "Core Skills Development",
-      "duration": "60 days",
-      "weeks": 8,
-      "goal": "...",
-      // similar structure, focus on key technical skills for {target_role}
-    }},
-    "phase_3": {{
-      "name": "Advanced Skills & Projects",
-      "duration": "90 days",
-      "weeks": 12,
-      "goal": "...",
-      // advanced topics, portfolio projects
-    }},
-    "phase_4": {{
-      "name": "Interview Prep & Job Search",
-      "duration": "6 months",
-      "weeks": 24,
-      "goal": "...",
-      // system design, mock interviews, applications
-    }}
-  }},
-  "daily_schedule": {{
-    "morning": "...",
-    "evening": "...",
-    "weekend": "..."
-  }},
-  "key_milestones": [
-    {{"month": 1, "milestone": "...", "proof": "..."}},
-    {{"month": 2, "milestone": "...", "proof": "..."}},
-    {{"month": 3, "milestone": "...", "proof": "..."}},
-    {{"month": 6, "milestone": "...", "proof": "..."}}
-  ],
-  "recommended_projects": [
-    {{"name": "...", "phase": 1, "skills": ["..."], "complexity": "Beginner"}},
-    {{"name": "...", "phase": 2, "skills": ["..."], "complexity": "Intermediate"}},
-    {{"name": "...", "phase": 3, "skills": ["..."], "complexity": "Advanced"}}
-  ],
-  "top_resources": [
-    {{"title": "...", "type": "...", "url": "...", "why": "...", "free": true}}
-  ],
-  "success_metrics": ["...", "...", "..."]
-}}
-
-Make it realistic, specific to {target_role}, and reference actual tools and resources."""
-
-    result = generate_json(prompt, temperature=0.6, max_tokens=6000)
-
-    if not result or not result.get("phases"):
-        logger.warning("AI roadmap generation returned empty, using template")
+    if not result or not result.get("phases") or not isinstance(result, dict):
+        logger.warning("AI roadmap generation returned empty or malformed result, using template")
         result = _generate_template_roadmap(target_role, missing_skills, available_hours_per_week)
 
     # Add metadata

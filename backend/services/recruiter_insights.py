@@ -4,6 +4,7 @@ Uses Gemini to generate detailed plain-English recruiter insights,
 fit assessments, and interview questions for ranked candidates.
 """
 from backend.services.ai_client import generate_json, is_ai_configured
+from backend.services.prompts import PROMPTS
 from loguru import logger
 
 def generate_candidate_insights(
@@ -26,29 +27,25 @@ def generate_candidate_insights(
         logger.warning("AI is not configured. Returning fallback insights.")
         return fallback
 
-    prompt = f"""
-    You are an expert technical recruiter. Analyze the candidate's profile against the job description requirements.
+    prompt = PROMPTS["recruiter_insights"].format(
+        role_title=jd_parsed.get('role_title', 'Software Engineer'),
+        required_skills=", ".join(jd_parsed.get('required_skills', [])),
+        domain=jd_parsed.get('domain', 'General'),
+        name=profile.get('name', 'Candidate'),
+        skills=", ".join(profile.get('skills', [])),
+        summary=profile.get('summary', ''),
+        semantic_score=scores.get('semantic_score', 0),
+        ats_score=scores.get('ats_score', 0)
+    )
     
-    JOB TITLE: {jd_parsed.get('role_title')}
-    REQUIRED SKILLS: {", ".join(jd_parsed.get('required_skills', []))}
-    DOMAIN: {jd_parsed.get('domain')}
+    # Define validation schema
+    schema = {
+        "fit_analysis": str,
+        "technical_vetting_points": list,
+        "suggested_interview_questions": list
+    }
     
-    CANDIDATE PROFILE:
-    - Name: {profile.get('name')}
-    - Skills: {", ".join(profile.get('skills', []))}
-    - Summary: {profile.get('summary')}
-    - Semantic Fit Score: {scores.get('semantic_score')}%
-    - ATS Quality Score: {scores.get('ats_score')}%
-    
-    Generate a JSON object with the following keys:
-    - "fit_analysis": "A detailed 2-3 sentence recruiter assessment of how well this candidate fits the role."
-    - "technical_vetting_points": ["2-3 specific technical topics or skills on their resume that match the job and should be verified"]
-    - "suggested_interview_questions": ["2 custom interview questions to ask this candidate based on their background and gaps"]
-    
-    Make sure the response contains ONLY valid JSON and no code block wrappers.
-    """
-    
-    result = generate_json(prompt, temperature=0.3, max_tokens=600, fallback=fallback)
+    result = generate_json(prompt, temperature=0.3, max_tokens=600, fallback=fallback, schema=schema)
     
     # Ensure all required keys are in the result
     for key in ["fit_analysis", "technical_vetting_points", "suggested_interview_questions"]:

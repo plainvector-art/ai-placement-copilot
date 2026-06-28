@@ -8,6 +8,7 @@ from loguru import logger
 
 from backend.services.resume_parser import extract_skills
 from backend.services.ai_client import generate_json
+from backend.services.prompts import PROMPTS
 
 
 def calculate_jd_match(
@@ -17,14 +18,6 @@ def calculate_jd_match(
 ) -> Dict:
     """
     Comprehensive resume vs. job description matching.
-
-    Args:
-        profile: Parsed candidate profile
-        job_description: Raw job description text
-        use_ai: Whether to use AI for deeper analysis
-
-    Returns:
-        Match score, keyword analysis, and recommendations
     """
     logger.info("Calculating JD match score...")
 
@@ -37,7 +30,6 @@ def calculate_jd_match(
 
     # Calculate keyword match
     resume_text_lower = resume_text.lower()
-    jd_text_lower = job_description.lower()
 
     # Keyword matching
     matched_keywords = []
@@ -118,7 +110,6 @@ def _extract_jd_keywords(jd_text: str) -> List[str]:
     }
 
     # Extract all meaningful words and phrases
-    # Multi-word technical terms (keep these)
     multi_word = re.findall(
         r'\b(?:machine learning|deep learning|natural language|data science|'
         r'power bi|google cloud|amazon web|software development|product management|'
@@ -126,7 +117,6 @@ def _extract_jd_keywords(jd_text: str) -> List[str]:
         jd_text, re.IGNORECASE
     )
 
-    # Single technical terms (capitalized or technical)
     single_words = re.findall(r'\b[A-Z][a-zA-Z]{2,}\b|\b[A-Z]{2,}\b', jd_text)
 
     keywords = set()
@@ -138,7 +128,6 @@ def _extract_jd_keywords(jd_text: str) -> List[str]:
         if sw.lower() not in stop_words and len(sw) > 2:
             keywords.add(sw)
 
-    # Also extract skills
     skills = extract_skills(jd_text)
     keywords.update(skills)
 
@@ -158,7 +147,6 @@ def _calculate_ats_optimization(
     found = sum(1 for kw in jd_keywords if kw.lower() in resume_lower)
     base_score = (found / len(jd_keywords)) * 100
 
-    # Bonus for keyword placement in important sections
     first_half = resume_lower[:len(resume_lower)//2]
     prominent_count = sum(1 for kw in jd_keywords[:10] if kw.lower() in first_half)
     bonus = (prominent_count / min(10, len(jd_keywords))) * 15
@@ -211,22 +199,20 @@ def _generate_jd_recommendations(
 
 def _ai_jd_analysis(profile: Dict, jd_text: str, base_result: Dict) -> Dict:
     """Use AI to provide deeper JD matching insights."""
-    prompt = f"""Analyze the fit between a {profile.get('name', 'candidate')}'s resume and this job description.
+    prompt = PROMPTS["jd_match"].format(
+        name=profile.get('name', 'Candidate'),
+        skills=', '.join(profile.get('skills', [])[:10]),
+        projects=', '.join([p.get('title','') for p in profile.get('projects', [])[:3]]),
+        base_score=base_result.get('overall_match_score', 0),
+        jd_snippet=jd_text[:800]
+    )
 
-CANDIDATE SKILLS: {', '.join(profile.get('skills', [])[:10])}
-CANDIDATE PROJECTS: {', '.join([p.get('title','') for p in profile.get('projects', [])[:3]])}
-BASE MATCH SCORE: {base_result.get('overall_match_score')}%
+    schema = {
+        "fit_assessment": str,
+        "strong_fit_reasons": list,
+        "concern_areas": list,
+        "interview_talking_points": list,
+        "resume_tailoring_tips": list
+    }
 
-JOB DESCRIPTION (first 800 chars):
-{jd_text[:800]}
-
-Provide JSON:
-{{
-  "fit_assessment": "2-sentence assessment of overall fit",
-  "strong_fit_reasons": ["...", "..."],
-  "concern_areas": ["...", "..."],
-  "interview_talking_points": ["...", "...", "..."],
-  "resume_tailoring_tips": ["...", "..."]
-}}"""
-
-    return generate_json(prompt, temperature=0.4, max_tokens=1000)
+    return generate_json(prompt, temperature=0.4, max_tokens=1000, schema=schema)
