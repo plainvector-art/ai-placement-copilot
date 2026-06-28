@@ -37,17 +37,17 @@ mock_session = st.session_state.get("mock_session")
 if not mock_session:
     # Start screen
     st.markdown(f"""
-    <div style="background:linear-gradient(135deg,rgba(14,14,14,0.95),rgba(27,48,34,0.4));
-         border:1px solid rgba(233,193,118,0.2);border-radius:16px;padding:2rem;margin-bottom:2rem;">
+    <div style="background:linear-gradient(135deg,rgba(22,22,31,0.9),rgba(26,16,40,0.9));
+         border:1px solid rgba(139,92,246,0.2);border-radius:16px;padding:2rem;margin-bottom:2rem;">
         <div style="display:flex;gap:1.5rem;align-items:flex-start;">
-            <div style="background:linear-gradient(135deg,#e9c176,#b4cdb8);width:56px;height:56px;
+            <div style="background:linear-gradient(135deg,#8b5cf6,#3b82f6);width:56px;height:56px;
                  border-radius:50%;display:flex;align-items:center;justify-content:center;
-                 font-size:1.5rem;flex-shrink:0;color:#1b3022;">🤖</div>
+                 font-size:1.5rem;flex-shrink:0;">🤖</div>
             <div>
-                <h3 style="color:#e5e2e1;margin:0 0 0.5rem 0;">Meet Alex, your AI Interviewer</h3>
-                <p style="color:#c3c8c1;margin:0;font-size:0.9rem;">
+                <h3 style="color:#f0f0f5;margin:0 0 0.5rem 0;">Meet Alex, your AI Interviewer</h3>
+                <p style="color:#9898b0;margin:0;font-size:0.9rem;">
                     Alex will conduct a 15-question mock interview for the 
-                    <strong style="color:#e9c176;">{target_role}</strong> role, 
+                    <strong style="color:#a78bfa;">{target_role}</strong> role, 
                     personalized to your actual resume and projects. 
                     You'll receive detailed performance feedback at the end.
                 </p>
@@ -106,15 +106,15 @@ elif mock_session.get("status") == "completed":
         rec_color = rec_colors.get(recommendation, "#8b5cf6")
 
         st.markdown(f"""
-        <div style="background:linear-gradient(135deg,rgba(14,14,14,0.95),rgba(27,48,34,0.4));
-             border:1px solid rgba(233,193,118,0.25);border-radius:20px;
+        <div style="background:linear-gradient(135deg,rgba(22,22,31,0.95),rgba(26,16,40,0.95));
+             border:1px solid rgba(139,92,246,0.25);border-radius:20px;
              padding:2.5rem;text-align:center;margin-bottom:2rem;">
-            <div style="font-size:1rem;color:#c3c8c1;text-transform:uppercase;letter-spacing:0.1em;
+            <div style="font-size:1rem;color:#9898b0;text-transform:uppercase;letter-spacing:0.1em;
                  margin-bottom:0.5rem;">Interview Complete</div>
-            <div style="font-size:4rem;font-weight:900;background:linear-gradient(135deg,#e9c176,#b4cdb8);
+            <div style="font-size:4rem;font-weight:900;background:linear-gradient(135deg,#8b5cf6,#3b82f6);
                  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
                  background-clip:text;">{overall:.0f}/100</div>
-            <div style="font-size:1.1rem;color:#e5e2e1;margin-top:0.5rem;">
+            <div style="font-size:1.1rem;color:#f0f0f5;margin-top:0.5rem;">
                 {evaluation.get('overall_feedback','Great performance!')}
             </div>
             <div style="margin-top:1rem;">
@@ -231,14 +231,14 @@ else:
             else:
                 st.markdown(f"""
                 <div style="display:flex;gap:0.75rem;align-items:flex-start;margin-bottom:1rem;justify-content:flex-end;">
-                    <div style="background:#e9c176;
-                          border-radius:12px;border-top-right-radius:4px;padding:0.875rem 1rem;
-                          max-width:75%;font-size:0.9rem;color:#1b3022;line-height:1.6;font-weight:500;">
+                    <div style="background:linear-gradient(135deg,#8b5cf6,#3b82f6);
+                         border-radius:12px;border-top-right-radius:4px;padding:0.875rem 1rem;
+                         max-width:75%;font-size:0.9rem;color:white;line-height:1.6;">
                         {msg['content']}
                     </div>
-                    <div style="background:rgba(233,193,118,0.15);border:1px solid rgba(233,193,118,0.3);
-                          width:36px;height:36px;border-radius:50%;display:flex;align-items:center;
-                          justify-content:center;color:#e9c176;font-size:0.9rem;flex-shrink:0;font-weight:700;">
+                    <div style="background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);
+                         width:36px;height:36px;border-radius:50%;display:flex;align-items:center;
+                         justify-content:center;color:#a78bfa;font-size:0.9rem;flex-shrink:0;font-weight:700;">
                         U
                     </div>
                 </div>

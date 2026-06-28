@@ -94,14 +94,14 @@ if roadmap:
             <div class="card" style="margin-bottom:1rem;">
                 <div style="display:flex;justify-content:space-between;align-items:flex-start;">
                     <div>
-                        <h4 style="color:#e5e2e1;margin:0 0 0.25rem 0;">
+                        <h4 style="color:#f0f0f5;margin:0 0 0.25rem 0;">
                             {icon} {phase.get('name',phase_key.title())}
                         </h4>
-                        <p style="color:#c3c8c1;margin:0;font-size:0.875rem;">{phase.get('goal','')}</p>
+                        <p style="color:#9898b0;margin:0;font-size:0.875rem;">{phase.get('goal','')}</p>
                     </div>
                     <div style="text-align:right;flex-shrink:0;">
-                        <span style="background:rgba(233,193,118,0.15);color:#e9c176;
-                             border:1px solid rgba(233,193,118,0.25);
+                        <span style="background:rgba(139,92,246,0.15);color:#a78bfa;
+                             border:1px solid rgba(139,92,246,0.25);
                              padding:0.2rem 0.8rem;border-radius:999px;font-size:0.8rem;font-weight:600;">
                             {phase.get('duration','')}
                         </span>
@@ -151,11 +151,11 @@ if roadmap:
             # Milestone
             if phase.get("milestone"):
                 st.markdown(f"""
-                <div style="background:rgba(27,48,34,0.3);
-                     border:1px solid rgba(233,193,118,0.2);border-radius:10px;
+                <div style="background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(59,130,246,0.1));
+                     border:1px solid rgba(139,92,246,0.2);border-radius:10px;
                      padding:0.875rem 1rem;margin-top:1rem;">
-                    🎯 <strong style="color:#e5e2e1;">Phase Milestone:</strong>
-                    <span style="color:#c3c8c1;"> {phase['milestone']}</span>
+                    🎯 <strong style="color:#f0f0f5;">Phase Milestone:</strong>
+                    <span style="color:#9898b0;"> {phase['milestone']}</span>
                 </div>
                 """, unsafe_allow_html=True)
 

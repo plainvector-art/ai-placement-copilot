@@ -99,14 +99,14 @@ with tab_chat:
                     st.markdown(f"""
                     <div style="display:flex;gap:0.75rem;align-items:flex-start;margin-bottom:1.25rem;
                          justify-content:flex-end;">
-                        <div style="background:#e9c176;
+                        <div style="background:linear-gradient(135deg,#8b5cf6,#3b82f6);
                              border-radius:12px;border-top-right-radius:4px;padding:0.75rem 1rem;
-                             max-width:75%;font-size:0.875rem;color:#1b3022;line-height:1.6;font-weight:500;">
+                             max-width:75%;font-size:0.875rem;color:white;line-height:1.6;">
                             {msg['content']}
                         </div>
-                        <div style="background:rgba(233,193,118,0.15);border:1px solid rgba(233,193,118,0.3);
+                        <div style="background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);
                              width:36px;height:36px;border-radius:50%;display:flex;align-items:center;
-                             justify-content:center;color:#e9c176;flex-shrink:0;font-weight:700;">U</div>
+                             justify-content:center;color:#a78bfa;flex-shrink:0;font-weight:700;">U</div>
                     </div>
                     """, unsafe_allow_html=True)
 
